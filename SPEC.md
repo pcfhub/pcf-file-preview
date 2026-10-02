@@ -114,6 +114,38 @@ Measured 2026-10-02, cll365, Chrome 154 on Windows, round 1 (reads):
 - In passing: the table definition, entity set and limits are fetched once
   per page and survive record-to-record navigation (the module stays loaded).
 
+Round 2 (writes), same day:
+
+- **P1, names outside ASCII.** **`x-ms-file-name` is unusable for them**:
+  `Übersicht — 2026.pdf`, uploaded by the platform's own control and stored
+  correctly (`cll_contract_name` and `FileAttachments.filename` both read
+  right), arrives as `ÃÅbersicht Ã¢â¬â 2026.pdf` — UTF-8 read as
+  Windows-1252, encoded to UTF-8 again, handed over as Latin-1. The same
+  response's **`Content-Disposition` carries it correctly**, RFC 2047:
+  `inline; filename="=?utf-8?B?w5xiZXJzaWNodCDigJQgMjAyNi5wZGY=?="` (an ASCII
+  name comes bare: `filename=contract.pdf`). So the name is read from
+  `Content-Disposition` first. The rig's and the hub harness's
+  percent-encoded `x-ms-file-name` was the wrong guess: both should model
+  this response. The 200 here *did* carry `Content-Length`; round 1's did not.
+- **P2, the untyped variant downloads.** An `octet-stream` blob in an
+  `<iframe>` is not drawn — Chrome **downloads it, under the blob's UUID**,
+  every time the tab is drawn. Probe only (0.1.0 types every blob), but it is
+  the strongest reason the re-typing must never be skipped.
+- **P3** After a `PATCH` or a `DELETE`: the preview follows (the re-GET); the
+  **form does not go dirty**; `updateView` does **not** fire; and **the
+  platform's own File control on the same form keeps showing the old file**
+  until the page is refreshed. A limitation to document, not to fix — there
+  is no PCF call that refreshes another control.
+- **P4** The server's refusals, forced past the control's own checks: a
+  blocked type answers **400 `0x80043e09`** *The attachment is either not a
+  valid type or is too large…* (the control showed it raw — 0.1.0 maps it to
+  `FilePreview_Blocked`); over `MaxSizeInKB` answers **400 `0x80044a02`**
+  *Attachment file size is too big.*, which the control already maps to
+  `FilePreview_TooBig`. `organizations?$select=blockedattachments` answers
+  200. `DELETE` answers **204** (2.4 s here), and the re-GET is 404 → empty.
+  `cll_smallfile`'s `IsValidForUpdate: false` did not stop the `PATCH`
+  reaching the size check.
+
 ## Demo
 
 The hub's harness answers File and Image columns from `demo/fixture.json`'s
