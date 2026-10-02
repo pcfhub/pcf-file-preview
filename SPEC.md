@@ -146,6 +146,19 @@ Round 2 (writes), same day:
   `cll_smallfile`'s `IsValidForUpdate: false` did not stop the `PATCH`
   reaching the size check.
 
+Round 3 (moving, large files), same day:
+
+- **P7** This app shows no record-set arrows on the form. Opening another
+  record from the view **remounts every control** (the pass counter restarts
+  at 1 with the new `entityId`), so a stale request cannot reach the new
+  record on that path. The one path that keeps the instance while the record
+  changes — saving a new record — is asked separately.
+- **P9** A 20 MB PDF drew "fast" (the user's word). A 30 MB one: the headers
+  answered in 577 ms, the control read `x-ms-file-size` 31457244, abandoned
+  the body (`tooLarge`) and showed `FilePreview_TooLarge`; **Download fetched
+  the whole file** (headers 444 ms, handed to `openFile` 2.3 s later) under
+  its own name. The 25 MB preview limit stands.
+
 ## Demo
 
 The hub's harness answers File and Image columns from `demo/fixture.json`'s
