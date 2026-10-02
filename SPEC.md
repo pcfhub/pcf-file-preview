@@ -35,17 +35,27 @@ P2 element reported after loading, and any content-security-policy refusal.
 
 **Set-up, once, on the Accounts test form (cll365):**
 
-1. On **Account**, add a **File** column — *Contract*, `cll_contract`, maximum
-   32 MB — and an **Image** column — *Photo*, `cll_photo`, with **Can store
-   full images** on. Publish.
+The maker portal cannot change a File column's maximum size once the column
+exists (Learn, *Work with file column definitions*: only the API can), so the
+two sizes P4 and P9 need are two columns, each made at its size.
+
+1. On **Account**, add two **File** columns — *Contract*, `cll_contract`,
+   maximum **65,536 KB** (64 MB, for P9's 30 MB file), and *Small file*,
+   `cll_smallfile`, maximum **1,024 KB** (for P4's over-limit refusal) — and an
+   **Image** column — *Photo*, `cll_photo`, **Can store full images** on,
+   *Primary image* off. Publish.
 2. Import `FilePreview_0.0.1_probe_unmanaged.zip`, publish.
-3. On the form: add `cll_contract` itself (the platform's own File control —
-   for uploading the first file, and for P3's comparison). Then add
-   **Account Name a second time** and give that instance **File Preview** with
-   *File column* `cll_contract`, *Allow replace and remove* **Yes**. A third
-   instance (any column) with *File column* `cll_photo`.
-4. On one account upload a PDF through the platform's File control and a
-   photo; leave another account empty.
+3. On the form, a new tab *File Preview probe*: `cll_contract` and `cll_photo`
+   themselves (the platform's own controls — for uploading, and for P3's
+   comparison), then three File Preview instances, each on a second copy of
+   any text column, *Allow replace and remove* **Yes**: *File column*
+   `cll_contract` (preview height 600), `cll_photo`, `cll_smallfile`.
+4. Two accounts: *Probe full*, with `contract.pdf` and the 1600 × 1200 photo
+   uploaded through the platform's controls; *Probe empty*, left empty.
+
+The files are generated, not found: `.probe-kit/file-preview/` in the
+workspace root (not a repository) holds the zip, PDFs of 300 KB, 2 MB, 20 MB
+and 30 MB, the two non-Latin-1 names, a renamed `test.exe` and the photo.
 
 Then, for each P below, do what it says and finally, in the console with the
 control's frame selected:
@@ -60,12 +70,12 @@ copy(JSON.stringify(__pcfFilePreviewProbe.dump(), null, 2))
 | P1b | Does `$expand=account_FileAttachments(…)` answer, under that name? | Nothing — the probe asks on every load | Whether a size can be had without the download (0.2.0 material) |
 | P2 | Does the PDF draw in an `<iframe>` from a typed `blob:` URL inside the form? And `<object>`, `<embed>`, an untyped `<iframe>`, an untyped `<img>`? Any CSP refusal? | Look at the PDF account: the probe shows the variants under the main frame — say which drew | **Inline PDF or an Open button** (decided with the user: no PDF.js) |
 | P3 | `PATCH` with an ASCII name and a non-ASCII one: status, the name and `mimetype` afterwards; does `updateView` fire; is the form dirty; does the platform's own File control show the new file? | Replace with `test.pdf`, then with `Übersicht.pdf` | Whether a replace needs a form refresh, and the mimetype the server keeps |
-| P4 | The server's refusals: a blocked extension, a file over `MaxSizeInKB` | `__pcfFilePreviewProbe.force = true`, then drop a file renamed `test.exe`; set the column to 1 MB and drop a 2 MB file | Which faults to name, and their codes |
+| P4 | The server's refusals: a blocked extension, a file over `MaxSizeInKB` | `__pcfFilePreviewProbe.force = true`, then drop `test.exe` on the contract instance and `two-megabytes.pdf` on the small-file one; then Remove the contract | Which faults to name, and their codes |
 | P5 | `MaxSizeInKB` and `CanStoreFullImage` through the casts; does `utils.getEntityMetadata` carry either? | Nothing — the probe asks on load | Whether the cast reads can go |
 | P6 | The Image column: `?size=full` answers the full copy; what an empty Image column answers | Open the account with the photo, then the empty one | The Image empty state |
 | P7 | Record to record on the same form: does `contextInfo.entityId` follow, and does the old request get dropped? | Use the form's next/previous record arrows twice, quickly | The load key |
 | P8 | `navigation.openFile` with `openMode` 1 (Open) and 2 (Download) on a PDF | Press Open, then Download | Whether Open earns its button |
-| P9 | A 20 MB PDF: time to draw; a 30 MB one: the too-large card, and Download fetching it | Upload both through the platform's File control (raise the column to 64 MB first) | The preview limit (25 MB) |
+| P9 | A 20 MB PDF: time to draw; a 30 MB one: the too-large card, and Download fetching it | Upload both through the platform's File control (`cll_contract` is 64 MB) | The preview limit (25 MB) |
 | P10 | The phone client: does the PDF frame draw? (Android's WebView has no PDF viewer) | Open the account in Power Apps mobile | Whether phones get the Open button instead |
 
 **Answers go here, dated, one line each, before any 0.1.0 code changes.**
