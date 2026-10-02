@@ -191,6 +191,15 @@ downloaded the file on every draw; docs name the platform File control that
 stays stale after a write; the rig and the hub harness answer non-ASCII names
 the way the service does.
 
+Decided with the user after the probe, 2026-10-02, not to reopen:
+
+- **Phones get the card.** When `context.client.getClient()` is `Mobile`, a
+  PDF shows the Open/Download card the sandboxed demo already uses; images
+  still draw inline. P10 was not run, and Android's WebView has no PDF viewer.
+- **Chrome's PDF toolbar stays.** Zoom, pages, search and print are worth the
+  blob's UUID in the viewer's title; File Preview's own Download keeps the
+  real name.
+
 ## Demo
 
 The hub's harness answers File and Image columns from `demo/fixture.json`'s
