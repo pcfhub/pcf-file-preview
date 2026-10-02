@@ -11,80 +11,67 @@ Documentation lives on [PCFHub](https://pcfhub.dev/components/pcf-file-preview),
 from the `docs/` directory in this repository. Edit the Markdown here; the hub
 recompiles it.
 
-<!--
-  This README is for someone standing in the repository — a maintainer, or
-  somebody deciding whether to install the control. The hub publishes `docs/`,
-  not this file, so do not duplicate the documentation here.
-
-  The PCFHub button above promises a live demo. If `demo.fidelity` in
-  `pcfhub.json` is `none`, point it at `badges/view-on-pcfhub.svg` and label it
-  "View on PCFHub" instead.
-
-  The three sections below are the ones worth writing by hand. Everything after
-  them is the same in every repository and needs no edits.
-
-  **Each carries a placeholder, and `npm run check` fails while one remains.**
-  That is deliberate: an unwritten README is the first thing a visitor to the
-  repository sees, and the version of this file that shipped before had worked
-  examples sitting in it that read as real content. One of them — a bound
-  `value` property — was wrong for every control that is not a field control,
-  and reached a published repository.
-
-  Delete these comments once the sections are written. They are instructions to
-  you, and they are noise on a public page.
--->
-
 ## What it does
 
-__WHAT_IT_DOES__
+Placed on a model-driven form, it shows the file in a File or Image column:
+a PDF in the browser's own viewer, an image at full size, the first 64 KB
+of a text file, and a card with Download and Open for anything else. With
+**Allow replace and remove** on, a file can be replaced — chosen, or dropped
+on the preview — and removed behind the platform's confirmation. The
+platform's own control shows a file name and a button; this shows the file.
 
-<!--
-  A few paragraphs, not a feature list. Answer what the built-in control does
-  not do, then spend the rest on the one or two decisions a reader would
-  otherwise question — the binding shape, a behaviour that looks like a bug
-  until you know why, a constraint you chose to accept.
+Three decisions a reader will otherwise question. **It sits on another
+column.** No manifest can bind a File or Image column, so the control is
+placed on any column (the 17-type group `pcf-audit-history` uses), never
+reads or writes it, and reaches the file through the record with the Web
+API's own file routes — `GET …/$value`, a single `PATCH`, `DELETE` — over a
+same-origin `fetch`. **The name comes from `Content-Disposition`.** Measured
+on a form, the service mangles any name outside ASCII in `x-ms-file-name`
+(`Übersicht.pdf` arrives as `ÃÅbersicht.pdf`) and sends it correctly only as
+an RFC 2047 word in `Content-Disposition`; a non-ASCII name goes *up* in the
+query string, because a browser will not send it in a header. **The bytes
+are re-typed.** The download is `application/octet-stream` whatever the
+file; an untyped blob in a frame is not drawn — the browser downloads it on
+every draw — so the type is taken from the `mimetype` header first.
 
-  This is the section that saves an issue being opened.
--->
+What a form does not do by itself is notice: a write goes around the form,
+so the platform's File control beside this one shows the old file until
+the page is refreshed. Every answer this control relies on was measured on
+a live form by the 0.0.1 probe; `SPEC.md` has them, dated, and what is
+still unverified (the phone app, above all).
 
 ## Properties
 
-__PROPERTIES__
+| Property | Type | Usage | Default | What it controls |
+| --- | --- | --- | --- | --- |
+| `value` | any column (type group) | bound, **required** | — | The column the control sits on. Never read or written. |
+| `fileColumn` | SingleLine.Text | input | — | Logical name of the File or Image column. Blank: the table's only File column, else its only Image column. |
+| `allowChanges` | TwoOptions | input | off | On: Replace (choose or drop) and Remove, behind the platform's confirmation. |
+| `previewHeight` | Whole.None | input | `480` | Height of the preview in pixels, clamped to 120–2000. |
+| `recordId`, `recordEntity` | SingleLine.Text | input | — | The record, for a host that does not say which it is on. A form supplies it. |
 
-<!--
-  The whole configuration surface, including the defaults. `docs/api.md`
-  generates its tables from the manifest; this one is hand-written, so keep it
-  short enough to stay true. Read them out of the manifest rather than from
-  memory, and check them against `generated/ManifestTypes.d.ts`.
-
-  A field control's table looks like this — one row per property, and for a
-  dataset control a second table for the `property-set` roles above it, giving
-  both the display name a maker sees and the manifest name the code looks up by:
-
-      | Property | Type | Usage | Default | What it controls |
-      | --- | --- | --- | --- | --- |
-      | `value` | SingleLine.Text | bound, **required** | — | The column this control reads and writes |
-
-  Follow it with the notes that do not fit a table: which languages the .resx
-  ship, whether the control bundles a framework or uses the platform's, which
-  `uses-feature` permissions a maker is asked for at install, and any property
-  whose accepted values need spelling out.
--->
+A standard control: direct DOM, no framework bundled, styled from the
+Fluent tokens a model-driven form publishes. Strings ship in English,
+German, French, Japanese and Spanish. One feature is declared, optional:
+`Utility`, to ask `hasEntityPrivilege` whether the user may write the table,
+so Replace and Remove are not offered to a user the server would refuse. No
+`WebAPI` feature — every request is a same-origin `fetch`, which no feature
+gates.
 
 ## On the hub
 
-__ON_THE_HUB__
+`demo.fidelity` is **limited**. The demo's Dataverse is a fixture
+(`demo/fixture.json`): one account with a contract PDF, a photo with its
+thumbnail, a CSV price list and an empty column, answered by the hub's
+harness the way a form answers — including the mangled header and the
+refusals. What is real there: images and text drawn, Replace by choosing or
+dropping, Remove behind the confirmation, every refusal. What is not: **a
+PDF cannot be drawn** — the demo frame is sandboxed, and Chrome will not
+run its PDF viewer in one, so the control shows the card it shows on a
+phone — and Open and Download are reported rather than performed. Five
+presets: an image, a PDF, a CSV, Replace and Remove on, and an empty column
+ready for a drop.
 
-<!--
-  What `demo.fidelity` is, and *why* it is that and not the next one up. A
-  `limited` demo should say which interactions do not work there; a `full` one
-  is worth explaining, because it follows from the control not reaching Web API,
-  device or navigation — which is also one fewer permission prompt for the maker
-  installing it.
-
-  Mention what the presets cover. Delete this section if fidelity is `none` —
-  and delete the placeholder with it, or the check will go on failing.
--->
 
 ## Install
 

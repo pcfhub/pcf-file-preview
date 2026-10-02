@@ -200,34 +200,52 @@ Decided with the user after the probe, 2026-10-02, not to reopen:
   blob's UUID in the viewer's title; File Preview's own Download keeps the
   real name.
 
+## Walkthrough 0.1.0 — on the form, before the tag
+
+The probe's set-up stays (Accounts form, the *File Preview probe* tab, the
+two accounts, `.probe-kit/file-preview/`). Import 0.1.0 over the probe.
+
+| | Do | Expect |
+| --- | --- | --- |
+| W1 | Open *Probe full* | The PDF drawn once — no variant frames under it — and **no file downloaded** by opening the tab |
+| W2 | Replace with `Übersicht — 2026.pdf`; then Download | The bar reads `Übersicht — 2026.pdf`, and the download saves under that name |
+| W3 | Drop `test.exe` on the contract | *test.exe cannot be uploaded: this organisation blocks files of that type.* — the file is never sent |
+| W4 | Drop `two-megabytes.pdf` on Small file | *…is larger than this column allows (1 MB).* — the file is never sent |
+| W5 | Remove the contract, confirm | *No file yet.*; the form shows no unsaved changes |
+| W6 | **+ New**, the probe tab, Save | *Save the record…*, then *No file yet.* after the save, without a reload |
+
 ## Demo
 
-The hub's harness answers File and Image columns from `demo/fixture.json`'s
-`dataverse.files` — pcfhub branch `feat/demo-file-columns` (`c373422`,
-`626d23b`), not yet deployed; until it is, `demo.fidelity` stays `none`. Then
-`limited`: the bytes are the fixture's.
+`demo.fidelity` is `limited`. The hub's harness answers File and Image
+columns from `demo/fixture.json`'s `dataverse.files` — pcfhub branch
+`feat/demo-file-columns` (`c373422`, `626d23b`, `9fc4e49`), **not yet
+deployed**: until it is, the hub's demo answers these requests with its
+"no Dataverse behind this demo" refusal. The fixture: one account, a contract
+PDF, a storefront photo with its thumbnail, a CSV price list and an empty
+column (`cr123_signedcopy`), each column 1 MB.
 
-**Measured 2026-10-02, the 0.0.1 build inside the real harness** (pcfhub dev
-server, `dev/hub-demo.html` as the parent, driven headless): the definition,
-the column's limit through its cast and `$value` all answered; Image full
-size drawn; Download reached the parent as `harness:navigate`; a dropped text
-file was PATCHed and read back; a blocked `.exe` and an over-limit file were
-refused before sending; Remove went through the harness's confirm dialog,
-DELETE, and the empty state. **A PDF did not draw**: the frame showed Chrome's
-blocked-page icon, because Chrome does not run its PDF viewer in a sandboxed
-document and the demo frame is sandboxed without `allow-same-origin`. The
-control now reads the opaque origin (`origin === 'null'`) and shows a card with
-Open and Download instead. Two harness fixes came from the same run: an empty
-column's 404 is logged as answered, and a non-image into an Image column is
-refused (the control refuses it first now, too). The probe's `$expand` (P1b)
-is the one request the demo refuses — it goes with the probe.
+**Measured 2026-10-02, the 0.1.0 build inside the real harness** (the branch
+at `9fc4e49`, `dev/hub-demo.html` as the parent, headless): the photo drawn
+full size; the CSV as text; the PDF as its card with Open and Download, and
+Download reaching the parent as `harness:navigate` under its name; on the
+empty column `.exe` and a 2 MB file refused before sending, and
+`Übersicht — 2026.txt` uploaded through the query string and read back
+right through `Content-Disposition`; on the photo a text file refused, then
+Remove → the confirm dialog → `DELETE` → the empty state (an Image column's
+204).
+
+The 0.0.1 build's run in the same harness found that **a PDF cannot draw in
+the demo** (Chrome runs no PDF viewer in a sandboxed document) — hence the
+card on an opaque origin — and the stand-in-parent technique itself; both
+are in the skill now (*The demo block* in `pcfhub-manifest.md`).
 
 ## Not verified
 
 - A user without Write on the table, or with the column secured: no Basic
   User on the test environment.
 - The phone client (P10): no Power Apps mobile app was to hand.
-- Browsers other than Chrome 154 on Windows; Edge shares the viewer, Firefox
-  and Safari were not opened.
+- Browsers other than Chrome 154 on Windows: Edge, Firefox and Safari were
+  not opened.
+- 0.1.0 itself on the form: W1–W6 above, until they are answered.
 - The route table, the inline PDF and the 25 MB limit were measured on
   2026-10-02 (above) and are no longer in this list.

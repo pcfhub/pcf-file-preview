@@ -4,10 +4,10 @@
   "slug": "pcf-file-preview",
   "name": "File Preview",
   "tagline": "See the PDF or image in a File or Image column on the form — and download, replace or remove it.",
-  "summary": "__SUMMARY__",
-  "category": "input",
+  "summary": "Shows the file in a File or Image column right on the model-driven form: a PDF in the browser's own viewer, an image at full size, the first 64 KB of a text or CSV file. The platform's own control shows only the file's name and a button.\n\n- **Download** and **Open** on every file, under its real name, including names with accents or other scripts\n- **Replace** and **Remove** when you switch them on, by choosing a file or dropping one on the preview, with Remove behind the platform's confirmation\n- Refuses a file before uploading it when the column's size limit or the organisation's blocked file types would reject it, and says which\n- Shows the full-size copy of an Image column when the column keeps one\n- A file over 25 MB is offered for download rather than previewed\n\nNo manifest can bind a File or Image column, so the control is placed on any other column of the form and reaches the file through the record. **Model-driven apps only**; on the phone app a PDF is offered to open or download instead of being drawn.",
+  "category": "utilities",
   "hosts": ["model-driven"],
-  "tags": [],
+  "tags": ["file", "pdf", "image", "preview", "attachments", "drag-and-drop", "no-react", "accessible", "localised"],
 
   "control": {
     "namespace": "PCFHub",
@@ -29,11 +29,92 @@
 
   "media": {
     "logo": "media/logo.png",
-    "screenshots": []
+    "screenshots": [
+      "media/screenshot-pdf.png",
+      "media/screenshot-image.png",
+      "media/screenshot-empty.png",
+      "media/screenshot-narrow.png"
+    ]
   },
 
   "demo": {
-    "fidelity": "none",
-    "presets": []
+    "fidelity": "limited",
+    "bundle": "out/controls/FilePreview/bundle.js",
+    "styles": ["out/controls/FilePreview/css/FilePreview.css"],
+    "datasetFixture": "demo/fixture.json",
+    "limitations": [
+      "A PDF is not drawn in the demo. The demo runs in a sandboxed frame, and Chrome will not run its PDF viewer in one, so the control shows the card it shows anywhere a PDF cannot be drawn, with Open and Download. On a model-driven form the PDF is drawn inline in the browser's viewer.",
+      "Open and Download are reported to the demo page rather than opening a tab or saving a file. On a form they hand the file to the platform, which opens it in a new tab or saves it under its name.",
+      "The demo's Dataverse is a fixture held in your browser: one account with a contract PDF, a storefront photo (full size and thumbnail), a CSV price list and an empty column. Replace and Remove go through the same requests a form sends and are answered from that fixture, refusals included: a file over 1 MB, a blocked type such as .exe, and a non-image into the photo column. Nothing is saved; Reset or a reload puts it back.",
+      "The platform File control a form often carries beside this one is not there, so the demo cannot show what a form does after a Replace: the platform's control keeps showing the old file until the page is refreshed."
+    ],
+    "presets": [
+      {
+        "slug": "photo",
+        "name": "An image",
+        "description": "An Image column that keeps full-size copies: the full photo, not the 144-pixel thumbnail the column also holds. View only, the default.",
+        "props": {
+          "value": "Adventure Works",
+          "fileColumn": "cr123_photo",
+          "allowChanges": false,
+          "previewHeight": 360,
+          "recordId": "",
+          "recordEntity": ""
+        },
+        "isDefault": true
+      },
+      {
+        "slug": "pdf",
+        "name": "A PDF",
+        "description": "A contract in a File column. On a form the PDF is drawn inline; in the demo's sandboxed frame it is offered to Open and Download instead.",
+        "props": {
+          "value": "Adventure Works",
+          "fileColumn": "cr123_contract",
+          "allowChanges": false,
+          "previewHeight": 360,
+          "recordId": "",
+          "recordEntity": ""
+        }
+      },
+      {
+        "slug": "text",
+        "name": "A CSV file",
+        "description": "A price list: a text file shows its first 64 KB as text.",
+        "props": {
+          "value": "Adventure Works",
+          "fileColumn": "cr123_pricelist",
+          "allowChanges": false,
+          "previewHeight": 240,
+          "recordId": "",
+          "recordEntity": ""
+        }
+      },
+      {
+        "slug": "changes",
+        "name": "Replace and remove",
+        "description": "Allow replace and remove on. Choose or drop an image to replace the photo, or Remove it behind a confirmation. Try a text file or anything over 1 MB to see the refusals.",
+        "props": {
+          "value": "Adventure Works",
+          "fileColumn": "cr123_photo",
+          "allowChanges": true,
+          "previewHeight": 360,
+          "recordId": "",
+          "recordEntity": ""
+        }
+      },
+      {
+        "slug": "empty",
+        "name": "No file yet",
+        "description": "An empty File column with changes on: drop a file on it, or choose one. Up to 1 MB; .exe and the other blocked types are refused before anything is sent.",
+        "props": {
+          "value": "Adventure Works",
+          "fileColumn": "cr123_signedcopy",
+          "allowChanges": true,
+          "previewHeight": 240,
+          "recordId": "",
+          "recordEntity": ""
+        }
+      }
+    ]
   }
 }
