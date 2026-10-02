@@ -158,6 +158,8 @@ Round 3 (moving, large files), same day:
   the body (`tooLarge`) and showed `FilePreview_TooLarge`; **Download fetched
   the whole file** (headers 444 ms, handed to `openFile` 2.3 s later) under
   its own name. The 25 MB preview limit stands.
+- **P10** Not run: no Power Apps mobile app to hand. Stays in *Not verified*;
+  0.1.0 decides the phone's behaviour without it.
 
 ## Demo
 
