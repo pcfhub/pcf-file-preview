@@ -4,7 +4,6 @@ import { effectiveMime, FileKind, kindOf } from './file/kind';
 import { formatSize, PREVIEW_LIMIT, refusalFor, TEXT_LIMIT } from './file/limits';
 import { columnPath, errorCodeOf, errorMessageOf, uploadTarget, valuePath } from './file/route';
 import * as P from './platform';
-import { installProbe, note, PROBE, probeForce } from './probe';
 
 /**
  * A File or Image column, drawn on the form: the PDF in a frame, the image
@@ -40,8 +39,6 @@ interface Shown {
     tooLarge: boolean;
     /** An Image column that keeps no full-size copy: what is shown is its 144px thumbnail. */
     thumbnailOnly: boolean;
-    /** PROBE only: the same bytes as they came, untyped — P2's control case. */
-    rawUrl: string | null;
 }
 
 type View =
@@ -101,7 +98,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
     private stageKey = '';
     private dragDepth = 0;
     private destroyed = false;
-    private passes = 0;
 
     public init(
         context: ComponentFramework.Context<IInputs>,
@@ -111,7 +107,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
     ): void {
         this.container = container;
         this.container.classList.add('FilePreview');
-        installProbe();
 
         this.bar = this.element('div', 'FilePreview-bar');
 
@@ -189,17 +184,12 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
     private render(context: ComponentFramework.Context<IInputs>): void {
         this.context = context;
         this.reading = P.readHost(context);
-        this.passes += 1;
 
         const r = this.reading;
+        // Measured: saving a new record keeps this instance and hands it the
+        // new id, so the key moves and the load follows; opening another
+        // record from a view mounts a new instance instead.
         const key = [r.clientUrl, r.table, r.recordId, r.askedColumn.trim().toLowerCase()].join('|');
-
-        if (PROBE) {
-            // P7: what each pass says about the record, and whether it moved.
-            const info = (context.mode as unknown as { contextInfo?: { entityId?: string; entityTypeName?: string } }).contextInfo;
-
-            note('pass', { n: this.passes, entityId: info?.entityId, entityTypeName: info?.entityTypeName, keyChanged: key !== this.key, disabled: r.disabled, writePrivilege: r.writePrivilege });
-        }
 
         this.container.classList.toggle('FilePreview--hidden', !r.visible);
         this.container.classList.toggle('FilePreview--dark', r.dark === true);
@@ -290,10 +280,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
 
         this.target = { clientUrl, table: r.table, recordId: r.recordId, set, column: resolution.column, limits };
 
-        if (PROBE) {
-            this.probeExtras(this.target);
-        }
-
         await this.fetchFile(token);
     }
 
@@ -322,7 +308,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
         } catch (error) {
             if (token === this.token) {
                 this.show({ phase: 'error', message: this.str('FilePreview_Offline') });
-                note('downloadError', { error: String(error) });
             }
 
             return;
@@ -332,10 +317,8 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             return;
         }
 
-        note('download', { status: answer.status, facts: answer.facts, blobType: answer.blob?.type, blobSize: answer.blob?.size, tooLarge: answer.tooLarge, body: answer.body });
-
-        // Empty is 404 with "No file attachment found" by the rig and a 204 by
-        // Learn's Image rule; P1 measures which a form answers.
+        // Measured: an empty File column is 404 `0x80040217`, an empty Image
+        // column 204 — to the full and the plain request alike.
         if (answer.status === 404 || answer.status === 204) {
             this.show({ phase: 'empty' });
 
@@ -367,15 +350,12 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             truncated: false,
             tooLarge: answer.tooLarge,
             thumbnailOnly,
-            rawUrl: null,
         };
 
+        // Typed, always: measured, an untyped (octet-stream) blob in a frame
+        // is not drawn — the browser downloads it on every draw.
         if (blob && (kind === 'image' || kind === 'pdf')) {
             file.url = objectUrl(blob);
-
-            if (PROBE && answer.blob) {
-                file.rawUrl = objectUrl(answer.blob);
-            }
         }
         if (blob && kind === 'text') {
             file.text = await blob.slice(0, TEXT_LIMIT).text();
@@ -405,7 +385,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
     private release(view: View): void {
         if (view.phase === 'file') {
             revoke(view.file.url);
-            revoke(view.file.rawUrl);
         }
     }
 
@@ -564,7 +543,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
                 img.alt = file.name;
                 img.decoding = 'async';
                 img.src = file.url ?? '';
-                this.watch(img, 'img:typed');
                 this.stage.append(img);
 
                 if (file.thumbnailOnly) {
@@ -574,10 +552,12 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             }
 
             case 'pdf': {
-                // A sandboxed document cannot draw a PDF at all (the hub's
-                // demo); say so beside Open and Download instead of framing
-                // Chrome's blocked-page icon.
-                if (P.isSandboxed()) {
+                // Measured: a typed PDF draws inline on a model-driven form.
+                // Two hosts cannot: a sandboxed document (the hub's demo),
+                // where Chrome shows its blocked-page icon instead, and — by
+                // decision, unmeasured — the phone app, whose WebView may have
+                // no PDF viewer. Both get a sentence beside Open and Download.
+                if (P.isSandboxed() || this.reading.mobile) {
                     this.stage.append(this.card(this.str('FilePreview_PdfNotHere')));
                     break;
                 }
@@ -587,7 +567,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
                 frame.className = 'FilePreview-frame';
                 frame.title = this.str('FilePreview_PreviewOf', file.name);
                 frame.src = file.url ?? '';
-                this.watch(frame, 'iframe:typed');
                 this.stage.append(frame);
                 break;
             }
@@ -608,11 +587,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
 
             default:
                 this.stage.append(this.card(this.str('FilePreview_NoPreview')));
-        }
-
-        // Not in a sandboxed document, where no variant can draw a PDF either.
-        if (PROBE && !P.isSandboxed()) {
-            this.probeVariants(file);
         }
     }
 
@@ -688,8 +662,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
 
         const handed = blob ? await P.handOver(this.reading, file.name, file.mime, blob, openMode) : false;
 
-        note('handOver', { openMode, handed, viaPlatform: this.reading.openFile !== null, size: blob?.size });
-
         if (!handed) {
             this.notice = this.str('FilePreview_DownloadFailed');
         }
@@ -735,9 +707,7 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             { maxSizeInKB: t.limits?.maxSizeInKB ?? null, blocked, imageOnly: t.column.kind === 'Image' },
         );
 
-        if (refusal && probeForce()) {
-            note('forced', { refusal, name: file.name, size: file.size });
-        } else if (refusal) {
+        if (refusal) {
             this.busy = null;
             this.notice = this.refusalText(refusal, file.name, t.limits?.maxSizeInKB ?? null);
             this.draw();
@@ -759,8 +729,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
         if (this.destroyed) {
             return;
         }
-
-        note('uploaded', { status: answer?.status, code: errorCodeOf(answer?.body), message: errorMessageOf(answer?.body), size: file.size, name: file.name });
 
         if (answer && answer.ok) {
             await this.reload();
@@ -814,8 +782,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             return;
         }
 
-        note('removed', { status: answer?.status, code: errorCodeOf(answer?.body), message: errorMessageOf(answer?.body) });
-
         if (answer && answer.ok) {
             await this.reload();
 
@@ -851,9 +817,20 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
         }
     }
 
+    /**
+     * The server's refusal in the control's words where it has them — the
+     * two codes the form answered (SPEC.md, 2026-10-02): over `MaxSizeInKB`,
+     * and a blocked type, whose own message ("not a valid type or is too
+     * large") names neither.
+     */
     private writeFailure(key: string, answer: P.Answer, name: string): string {
-        if (errorCodeOf(answer.body) === '0x80044a02') {
+        const code = errorCodeOf(answer.body);
+
+        if (code === '0x80044a02') {
             return this.str('FilePreview_TooBig', name, formatSize((this.target?.limits?.maxSizeInKB ?? 0) * 1024, this.reading.locale));
+        }
+        if (code === '0x80043e09') {
+            return this.str('FilePreview_Blocked', name);
         }
         if (answer.status === 403) {
             return this.str('FilePreview_NotPermitted');
@@ -897,112 +874,6 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             void this.upload(file);
         }
     };
-
-    /* ---- the probe (0.0.x only) ------------------------------------------- */
-
-    /** P2: the same PDF in an `<object>`, an `<embed>` and an untyped frame; the same image untyped. */
-    private probeVariants(file: Shown): void {
-        if (!file.rawUrl && !file.url) {
-            return;
-        }
-
-        const box = this.element('div', 'FilePreview-probe');
-
-        box.append(this.paragraph('FilePreview-detail', 'Probe 0.0.1 — P2 variants (each should draw the same file):'));
-
-        if (file.kind === 'pdf') {
-            const object = document.createElement('object');
-
-            object.data = file.url ?? '';
-            object.type = 'application/pdf';
-            object.className = 'FilePreview-frame FilePreview-frame--probe';
-            this.watch(object, 'object:typed');
-
-            const embed = document.createElement('embed');
-
-            embed.src = file.url ?? '';
-            embed.type = 'application/pdf';
-            embed.className = 'FilePreview-frame FilePreview-frame--probe';
-            this.watch(embed, 'embed:typed');
-
-            const untyped = document.createElement('iframe');
-
-            untyped.src = file.rawUrl ?? '';
-            untyped.title = 'P2 untyped';
-            untyped.className = 'FilePreview-frame FilePreview-frame--probe';
-            this.watch(untyped, 'iframe:untyped');
-            box.append(this.paragraph('FilePreview-detail', 'object (typed)'), object, this.paragraph('FilePreview-detail', 'embed (typed)'), embed, this.paragraph('FilePreview-detail', 'iframe (untyped blob)'), untyped);
-        }
-        if (file.kind === 'image' && file.rawUrl) {
-            const img = document.createElement('img');
-
-            img.src = file.rawUrl;
-            img.alt = 'P2 untyped';
-            img.className = 'FilePreview-image FilePreview-image--probe';
-            this.watch(img, 'img:untyped');
-            box.append(this.paragraph('FilePreview-detail', 'img (untyped blob)'), img);
-        }
-
-        this.stage.append(box);
-    }
-
-    /** P2: what each element reports once it has (or has not) drawn. */
-    private watch(element: HTMLElement, variant: string): void {
-        if (!PROBE) {
-            return;
-        }
-
-        const report = (outcome: string): void => {
-            const detail: Record<string, unknown> = { variant, outcome };
-
-            try {
-                if (element instanceof HTMLImageElement) {
-                    detail.naturalWidth = element.naturalWidth;
-                }
-                if (element instanceof HTMLIFrameElement) {
-                    const doc = element.contentDocument;
-
-                    detail.contentDocument = doc ? 'readable' : 'null';
-                    detail.firstChild = doc?.body?.firstElementChild ? `${doc.body.firstElementChild.tagName}${(doc.body.firstElementChild as HTMLEmbedElement).type ? `:${(doc.body.firstElementChild as HTMLEmbedElement).type}` : ''}` : '';
-                }
-                detail.height = element.offsetHeight;
-            } catch (error) {
-                detail.readError = String(error);
-            }
-
-            note('render', detail);
-        };
-
-        element.addEventListener('load', () => report('load'));
-        element.addEventListener('error', () => report('error'));
-    }
-
-    /** P1b, P5: two reads 0.1.0 might lean on, asked once per target. */
-    private probeExtras(t: Target): void {
-        const expand = `${t.set}(${t.recordId})?$select=${t.column.name}_name&$expand=${t.table}_FileAttachments($select=filename,filesizeinbytes,mimetype,regardingfieldname)`;
-
-        void P.getJson(t.clientUrl, expand).then((answer) => note('P1b expand', { status: answer.status, body: JSON.stringify(answer.body).slice(0, 600) }), (error) => note('P1b expand', { error: String(error) }));
-
-        try {
-            const utils = (this.context as unknown as { utils?: { getEntityMetadata?: (table: string, columns: string[]) => Promise<unknown> } }).utils;
-
-            if (typeof utils?.getEntityMetadata === 'function') {
-                void utils.getEntityMetadata(t.table, [t.column.name]).then(
-                    (metadata: unknown) => {
-                        const attributes = (metadata as { Attributes?: { get?: (n: string) => unknown } }).Attributes;
-                        const item = attributes?.get?.(t.column.name);
-
-                        note('P5 getEntityMetadata', { item: JSON.stringify(item ?? null).slice(0, 600) });
-                    },
-                    (error) => note('P5 getEntityMetadata', { error: String(error) }),
-                );
-            }
-        } catch (error) {
-            note('P5 getEntityMetadata', { threw: String(error) });
-        }
-
-        note('target', { table: t.table, set: t.set, column: t.column, limits: t.limits, origin: (globalThis as unknown as { origin?: string }).origin, sandboxed: P.isSandboxed() });
-    }
 
     /* ---- small DOM helpers ------------------------------------------------ */
 

@@ -301,10 +301,11 @@ if (typeof registration.ctor !== 'function') {
  *
  *  Everything it shows comes over the rig's `fetch` stub from
  *  `dev/fixture.js`: `c1` has a PDF in its File column and a photo in its
- *  Image column, `p1` a text file, every other account nothing. The stub's
- *  shapes are Learn's until the 0.0.x probe measures them (SPEC.md P1–P10),
- *  so a green run here says the control reads Learn's answers right — not
- *  that a form gives them.
+ *  Image column, `p1` a text file, every other account nothing. The stub
+ *  answers as a form did when the 0.0.1 probe measured one (SPEC.md,
+ *  2026-10-02) — a mangled `x-ms-file-name`, the name in
+ *  `Content-Disposition`, 204 for an empty Image column — so a green run
+ *  says the control reads those answers right.
  * ======================================================================== */
 
 const { resolveObjectURL } = require('buffer');
@@ -644,6 +645,37 @@ async function controlChecks() {
         textOf(sandboxed, '.FilePreview-card .FilePreview-prompt'),
     );
 
+    /*
+     * An empty Image column answers 204 to the full and the plain request
+     * (measured), where an empty File column answers 404: both are "no file
+     * yet", neither an error.
+     */
+    const emptyPhoto = mount(on('k1', { inputs: { fileColumn: 'cll_photo' } }));
+
+    await settle();
+    check(
+        'an empty Image column (204) is the empty state, not an error and not a file',
+        Boolean(emptyPhoto.find('.FilePreview-stage--empty')) && !emptyPhoto.find('img.FilePreview-image')
+            && !emptyPhoto.find('.FilePreview-status--error') && !shown(emptyPhoto, 'download'),
+        emptyPhoto.find('.FilePreview-stage') && emptyPhoto.find('.FilePreview-stage').className,
+    );
+
+    /*
+     * The phone app — `client.getClient()` is `Mobile` — gets the same card for
+     * a PDF: Android's WebView has no PDF viewer. Decided, not measured
+     * (SPEC.md, P10 was not run). An image still draws.
+     */
+    const phone = mount(on('c1', { formFactor: 'phone' }));
+    const phonePhoto = mount(on('c1', { formFactor: 'phone', inputs: { fileColumn: 'cll_photo' } }));
+
+    await settle();
+    check(
+        'on the phone app a PDF is not framed — the card and Open and Download — while an image still draws',
+        !phone.find('iframe.FilePreview-frame') && textOf(phone, '.FilePreview-card .FilePreview-prompt') === 'resx:FilePreview_PdfNotHere'
+            && shown(phone, 'open') && shown(phone, 'download') && Boolean(phonePhoto.find('img.FilePreview-image')),
+        textOf(phone, '.FilePreview-card .FilePreview-prompt'),
+    );
+
     /* ---- handing the file over ------------------------------------------ */
 
     const hand = mount(on('c1'));
@@ -783,6 +815,29 @@ async function controlChecks() {
         textOf(forbidden, '.FilePreview-status'),
     );
 
+    /*
+     * The server's own blocked-type refusal (measured: 400 0x80043e09, "not a
+     * valid type or is too large"), reached by an organisation row that lists
+     * nothing — so the control's check passes and the PATCH goes. Its message
+     * names neither reason; the control's names the type.
+     */
+    const serverBlocks = mount(on('k1', {
+        inputs: allow,
+        fixture: fixtureWith((f) => {
+            f.tables.organization = [{ organizationid: '00000000-0000-0000-0000-00000000000f', blockedattachments: '' }];
+        }),
+    }));
+
+    await settle();
+    drop(serverBlocks, [new File(['MZ'], 'setup.exe')]);
+    await settle(30);
+    check(
+        'a blocked type the server refuses (0x80043e09) is named in the control\'s words, and the column is left as it was',
+        textOf(serverBlocks, '.FilePreview-status') === 'resx:FilePreview_Blocked' && writes(serverBlocks).length === 1
+            && Boolean(serverBlocks.find('.FilePreview-stage--empty')),
+        `${textOf(serverBlocks, '.FilePreview-status')} ; ${writes(serverBlocks).join()}`,
+    );
+
     const viewOnly = mount(on('k1'));
 
     await settle();
@@ -872,6 +927,37 @@ async function controlChecks() {
  * is the one that quietly does nothing. Counting before and after is the
  * whole trick: timers and document-level listeners.
  */
+/*
+ * The file's name, read off the download's headers — `file/route.ts`, loaded
+ * from source. Measured (SPEC.md, 2026-10-02): `x-ms-file-name` mangles a
+ * name outside ASCII, and `Content-Disposition` carries it right, bare when
+ * ASCII and as an RFC 2047 encoded word otherwise.
+ */
+function nameChecks() {
+    const { createLoader } = require('./modules.js');
+    const route = createLoader({ root: path.join(root, 'FilePreview') })('file/route');
+    const read = (headers) => route.readDownload({ get: (name) => (name in headers ? headers[name] : null) }).name;
+    const word = (text) => `inline; filename="=?utf-8?B?${Buffer.from(text, 'utf8').toString('base64')}?="`;
+
+    check(
+        'a name is read from Content-Disposition: bare, quoted, as an encoded word, split across words, or RFC 5987',
+        route.nameFromDisposition('inline; filename=contract.pdf') === 'contract.pdf'
+            && route.nameFromDisposition('attachment; filename="a \\"b\\".pdf"') === 'a "b".pdf'
+            && route.nameFromDisposition(word('Übersicht — 2026.pdf')) === 'Übersicht — 2026.pdf'
+            && route.nameFromDisposition('inline; filename="=?utf-8?B?w5xiZXJz?= =?utf-8?B?aWNodC5wZGY=?="') === 'Übersicht.pdf'
+            && route.nameFromDisposition('inline; filename="=?utf-8?Q?=C3=9Cber_sicht.pdf?="') === 'Über sicht.pdf'
+            && route.nameFromDisposition("attachment; filename=x.pdf; filename*=UTF-8''%C3%9Cbersicht.pdf") === 'Übersicht.pdf'
+            && route.nameFromDisposition('inline') === null && route.nameFromDisposition(null) === null,
+    );
+    check(
+        'the measured response names the file right; x-ms-file-name is believed only when it is plain ASCII',
+        read({ 'content-disposition': word('Übersicht.pdf'), 'x-ms-file-name': 'Ã\u0083Å\u0093bersicht.pdf' }) === 'Übersicht.pdf'
+            && read({ 'x-ms-file-name': 'Ã\u0083Å\u0093bersicht.pdf' }) === ''
+            && read({ 'x-ms-file-name': 'plain.pdf' }) === 'plain.pdf'
+            && read({}) === '',
+    );
+}
+
 function teardownChecks() {
     disposeAll();
 
@@ -991,9 +1077,15 @@ async function metadataSelfCheck() {
 /*
  * A File or Image column through the Web API — `GET …/$value`, `PATCH`,
  * `DELETE` — the route Learn documents for a column no manifest can bind.
- * Learn's shapes until pcf-file-preview's probe measures them; see
- * `fileAnswer` in `dev/host.js` for which parts are guesses.
+ * Measured on a form by pcf-file-preview's probe (2026-10-02); `fileAnswer`
+ * in `dev/host.js` says which parts are still Learn's.
  */
+const dispositionName = (header) => {
+    const word = /filename="=\?utf-8\?B\?([^?]*)\?="/i.exec(header || '');
+
+    return word ? Buffer.from(word[1], 'base64').toString('utf8') : (/filename=([^;]+)/.exec(header || '') || [])[1];
+};
+
 async function fileColumnSelfCheck() {
     const ctx = host.createContext({ fixture, clientUrl: host.nextClientUrl() });
     const base = `${ctx.page.getClientUrl()}/api/data/v9.2/`;
@@ -1003,20 +1095,30 @@ async function fileColumnSelfCheck() {
     const pdfBytes = new Uint8Array(await pdf.arrayBuffer());
     const pdfBlob = await (await call('accounts(c1)/cll_filenative/$value')).blob();
     check(
-        'rig: a File column downloads its bytes with x-ms-file-name, x-ms-file-size and mimetype — and an untyped blob, which a control types from mimetype',
-        pdf.status === 200 && pdf.headers.get('mimetype') === 'application/pdf' && pdf.headers.get('x-ms-file-name') === 'Contoso DE — Rahmenvertrag 2026.pdf'
+        'rig: a File column downloads its bytes with x-ms-file-size, mimetype and its name — and an untyped blob, which a control types from mimetype',
+        pdf.status === 200 && pdf.headers.get('mimetype') === 'application/pdf'
             && Number(pdf.headers.get('x-ms-file-size')) === pdfBytes.byteLength && String.fromCharCode(...pdfBytes.slice(0, 5)) === '%PDF-'
             && pdfBlob.type === 'application/octet-stream' && pdfBlob.size === pdfBytes.byteLength,
         `${pdf.status} ${pdf.headers.get('mimetype')} ${pdfBlob.type}`,
     );
+    check(
+        'rig: a name outside ASCII is mangled in x-ms-file-name and right in Content-Disposition, as measured; an ASCII one is bare in both',
+        dispositionName(pdf.headers.get('content-disposition')) === 'Contoso DE — Rahmenvertrag 2026.pdf'
+            // "—" as the probe saw it: Ã¢â¬â plus three invisible C1 controls.
+            && pdf.headers.get('x-ms-file-name') === 'Contoso DE Ã¢â\u0082¬â\u0080\u009d Rahmenvertrag 2026.pdf',
+        `${pdf.headers.get('x-ms-file-name')} | ${pdf.headers.get('content-disposition')}`,
+    );
 
     const empty = await call('accounts(k1)/cll_filenative/$value');
+    const emptyImage = await call('accounts(k1)/cll_photo/$value');
+    const emptyFull = await call('accounts(k1)/cll_photo/$value?size=full');
     const nobody = await call('accounts(nosuch)/cll_filenative/$value');
     const notFile = await call('accounts(c1)/name/$value').then(() => 'answered', (e) => e.message);
     check(
-        "rig: an empty column is a 404 (unmeasured), a record that is not there another, and a column that is not a file is the stub's refusal",
-        empty.status === 404 && (await empty.json()).error.code === '0x80040217' && nobody.status === 404 && /No fetch for/.test(notFile),
-        `${empty.status} ${nobody.status} ${notFile}`,
+        "rig: an empty File column is 404 0x80040217 and an empty Image column 204 to both requests (measured), a record that is not there 404, and a column that is not a file the stub's refusal",
+        empty.status === 404 && (await empty.json()).error.code === '0x80040217' && emptyImage.status === 204 && emptyFull.status === 204
+            && nobody.status === 404 && /No fetch for/.test(notFile),
+        `${empty.status} ${emptyImage.status} ${emptyFull.status} ${nobody.status} ${notFile}`,
     );
 
     const thumb = await call('accounts(c1)/cll_photo/$value');
@@ -1046,11 +1148,14 @@ async function fileColumnSelfCheck() {
     const after = await call('accounts(k1)/cll_filenative/$value');
     const nonAscii = await call(`accounts(k2)/cll_filenative?x-ms-file-name=${encodeURIComponent('Übersicht.txt')}`, { method: 'PATCH', body: 'ü' });
     const named = await call('accounts(k2)/cll_filenative/$value');
+    const inHeader = await call('accounts(k2)/cll_filenative', { method: 'PATCH', headers: { 'x-ms-file-name': 'Отчёт.txt' }, body: 'x' }).then(() => 'sent', (e) => e);
     check(
-        'rig: a PATCH answers 204 and the next GET has the new bytes and name; the name may come in the query instead of the header',
+        'rig: a PATCH answers 204 and the next GET has the new bytes and name; a non-ASCII name goes in the query, because a header holding one never leaves the browser',
         put.status === 204 && after.status === 200 && (await after.text()) === 'Neue Fassung' && after.headers.get('x-ms-file-name') === 'v2.txt'
-            && after.headers.get('mimetype') === 'text/plain' && nonAscii.status === 204 && named.headers.get('x-ms-file-name') === 'Übersicht.txt',
-        `${put.status} ${after.status} ${nonAscii.status}`,
+            && after.headers.get('content-disposition') === 'inline; filename=v2.txt'
+            && after.headers.get('mimetype') === 'text/plain' && nonAscii.status === 204
+            && dispositionName(named.headers.get('content-disposition')) === 'Übersicht.txt' && inHeader instanceof TypeError,
+        `${put.status} ${after.status} ${nonAscii.status} ${inHeader}`,
     );
 
     const big = await call('accounts(k1)/cll_photo', { method: 'PATCH', headers: { 'x-ms-file-name': 'huge.png' }, body: new Uint8Array(10240 * 1024 + 1) });
@@ -1484,6 +1589,7 @@ function checkModuleLoader() {
 
 controlChecks()
     .then(() => teardownChecks())
+    .then(() => nameChecks())
     .then(rigSelfCheck)
     .then(report, (error) => {
     check('rig: the self-check ran to the end', false, String(error && error.stack || error));

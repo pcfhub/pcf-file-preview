@@ -313,19 +313,6 @@
     white-space: nowrap;
 }
 
-/* PROBE only — the 0.0.x measurement build's P2 variants. */
-.FilePreview .FilePreview-probe {
-    border-top: 1px dashed var(--FilePreview-stroke-strong);
-}
-
-.FilePreview .FilePreview-frame--probe {
-    height: 200px;
-}
-
-.FilePreview .FilePreview-image--probe {
-    max-height: 120px;
-}
-
 @media (forced-colors: active) {
     .FilePreview .FilePreview-stage,
     .FilePreview .FilePreview-action {

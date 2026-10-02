@@ -7,13 +7,12 @@
 
   `smoke.js` asserts what the control decided; this shows what it drew, which
   is the half no assertion reaches. Each card is its own mount on the rig's
-  `fetch` stub, answered from `dev/fixture.js` — Learn's shapes, not a form's.
+  `fetch` stub, answered from `dev/fixture.js` — the shapes a form answered (SPEC.md).
 
   Query parameters, all optional:
     ?dark=1           the dark fallbacks (no Fluent tokens are published here)
     ?width=320        each card's width in px (default 560)
     ?only=pdf,empty   just those cards, by id
-    ?probe=0          hide the 0.0.x probe's P2 variants under a PDF or image
 -->
 <html lang="en">
 <head>
@@ -64,9 +63,6 @@
         .dark .card h2 {
             color: #adadad;
         }
-        .hide-probe .FilePreview-probe {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -91,7 +87,6 @@
             var only = (params.get('only') || '').split(',').filter(Boolean);
 
             document.body.classList.toggle('dark', dark);
-            document.body.classList.toggle('hide-probe', params.get('probe') === '0');
 
             /** The fixture with a change, copied so the cards do not share it. */
             function fixtureWith(change) {

@@ -38,15 +38,15 @@ const DEBUG_PORT = 9341;
 /** name, what it is for, the preview's query string, the cards to frame together. */
 const SHOTS = [
     ['screenshot-pdf.png', 'a PDF in a File column, drawn by the browser\'s own viewer, with Open and Download',
-        'probe=0&width=640&only=pdf', ['pdf']],
+        'width=640&only=pdf', ['pdf']],
     ['screenshot-image.png', 'an Image column\'s full-size copy, and a text file with Replace and Remove on',
-        'probe=0&width=520&only=image,editable', ['image', 'editable']],
+        'width=520&only=image,editable', ['image', 'editable']],
     ['screenshot-empty.png', 'an empty column with changes on — a drop target and a button — and the sentences for a new record and a misconfigured one',
-        'probe=0&width=420&only=empty,saveFirst,ambiguous', ['empty', 'saveFirst', 'ambiguous']],
-    ['states-light.png', 'every state, light', 'probe=0&width=360', null],
-    ['states-dark.png', 'every state, dark', 'probe=0&width=360&dark=1', null],
+        'width=420&only=empty,saveFirst,ambiguous', ['empty', 'saveFirst', 'ambiguous']],
+    ['states-light.png', 'every state, light', 'width=360', null],
+    ['states-dark.png', 'every state, dark', 'width=360&dark=1', null],
     ['screenshot-narrow.png', 'a 300px column: the actions wrap under the name rather than squeeze it',
-        'probe=0&width=300&only=pdf,editable', ['pdf', 'editable']],
+        'width=300&only=pdf,editable', ['pdf', 'editable']],
 ];
 
 if (!CHROME) {

@@ -25,7 +25,6 @@ import {
     readDownload,
     tableDefinitionPath,
 } from './file/route';
-import { probeRecord } from './probe';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -58,6 +57,8 @@ export interface HostReading {
     isRTL: boolean;
     /** `true`, `false`, or `undefined` for a host that publishes no theme. */
     dark: boolean | undefined;
+    /** `client.getClient() === 'Mobile'` — the phone and tablet app, where a PDF gets a card, not a frame. */
+    mobile: boolean;
     /** The user's locale for numbers, from the platform's formatting, else the browser's. */
     locale: string | undefined;
 }
@@ -109,8 +110,20 @@ export function readHost(context: ComponentFramework.Context<IInputs>): HostRead
         visible: context.mode?.isVisible !== false,
         isRTL: context.userSettings?.isRTL === true,
         dark: context.fluentDesignLanguage?.isDarkTheme,
+        mobile: clientOf(context) === 'Mobile',
         locale: localeOf(context),
     };
+}
+
+/** `Web`, `Outlook` or `Mobile`; `''` where the host does not say. */
+function clientOf(context: ComponentFramework.Context<IInputs>): string {
+    try {
+        const client = context.client?.getClient?.();
+
+        return typeof client === 'string' ? client : '';
+    } catch {
+        return '';
+    }
 }
 
 function localeOf(context: ComponentFramework.Context<IInputs>): string | undefined {
@@ -272,31 +285,16 @@ export interface Answer {
 
 /**
  * Every request goes through here: same origin, the form's session
- * (`credentials: 'same-origin'`), and the probe told what happened. Resolves
- * on any HTTP status — a refusal is an answer the control names — and
- * rejects only when there is no response at all (offline, a blocked origin),
- * which `fetch` delivers as a `TypeError`.
+ * (`credentials: 'same-origin'`). Resolves on any HTTP status — a refusal is
+ * an answer the control names — and rejects only when there is no response
+ * at all (offline, a blocked origin), which `fetch` delivers as a `TypeError`.
  */
 function send(clientUrl: string, path: string, init: RequestInit): Promise<Response> {
     if (typeof fetch !== 'function') {
         return Promise.reject(new TypeError('fetch is not available'));
     }
 
-    const started = Date.now();
-    const method = (init.method || 'GET').toUpperCase();
-
-    return fetch(`${clientUrl}${API}${path}`, { credentials: 'same-origin', ...init }).then(
-        (response) => {
-            probeRecord({ method, path, status: response.status, ms: Date.now() - started, headers: response.headers });
-
-            return response;
-        },
-        (error) => {
-            probeRecord({ method, path, status: 0, ms: Date.now() - started, error: String(error) });
-
-            throw error;
-        },
-    );
+    return fetch(`${clientUrl}${API}${path}`, { credentials: 'same-origin', ...init });
 }
 
 function asAnswer(response: Response): Promise<Answer> {
