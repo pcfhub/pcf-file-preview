@@ -80,6 +80,40 @@ copy(JSON.stringify(__pcfFilePreviewProbe.dump(), null, 2))
 
 **Answers go here, dated, one line each, before any 0.1.0 code changes.**
 
+Measured 2026-10-02, cll365, Chrome 154 on Windows, round 1 (reads):
+
+- **P1** A full File column answers **200**, `Content-Type: application/octet-stream`
+  (so the blob must be re-typed — confirmed), `mimetype: application/pdf`,
+  `x-ms-file-name`, `x-ms-file-size: 307160`, `Content-Disposition: inline;
+  filename=…`, **no `Content-Length`** — the size is `x-ms-file-size`. Every
+  header is readable (same origin; `Access-Control-Expose-Headers` lists the
+  three anyway). An empty File column answers **404**, JSON,
+  `0x80040217` *No file attachment found for attribute*. Non-Latin-1 names:
+  round 2.
+- **P1b** `$expand=account_FileAttachments(...)` answers 200 with `filename`,
+  `filesizeinbytes`, `mimetype`, `regardingfieldname` — a size without the
+  download (0.2.0 material). `<column>_name` exists for a File column, **not
+  for an Image column** (400 `0x80060888`); an Image column's full copy is
+  not listed in `FileAttachments`.
+- **P2** **The typed `blob:` PDF draws inline** in an `<iframe>`, `<object>`
+  and `<embed>`; no CSP refusal. The **untyped** (octet-stream) blob in an
+  iframe drew nothing and fired no `load`. An untyped image blob *does* draw
+  (`<img>` sniffs). Cosmetic: Chrome's viewer titles the frame with the
+  blob's UUID, and its own save button would save under that name.
+- **P5** The casts answer: `MaxSizeInKB` 65536 / 1024, Image 10240 with
+  `CanStoreFullImage: true`. Whether `getEntityMetadata` carries them: the
+  probe cut its answer at 600 characters — asked again in round 2.
+  It reports `IsValidForUpdate: false` for `cll_smallfile` and `true` for
+  `cll_contract` — round 2's PATCH will say whether that means anything.
+- **P6** `?size=full` answers 200 with the full 1600 × 1200 copy (plus
+  `x-ms-image-pixel-width/height`, `x-ms-color-depth-bits`). An **empty Image
+  column answers 204** to both the full and the plain request — not the File
+  column's 404.
+- **P8** `navigation.openFile` takes both: `openMode` 1 opens the PDF in a new
+  browser tab, 2 downloads it under its own name. Open earns its button.
+- In passing: the table definition, entity set and limits are fetched once
+  per page and survive record-to-record navigation (the module stays loaded).
+
 ## Demo
 
 The hub's harness answers File and Image columns from `demo/fixture.json`'s
