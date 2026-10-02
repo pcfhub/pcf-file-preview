@@ -214,6 +214,8 @@ two accounts, `.probe-kit/file-preview/`). Import 0.1.0 over the probe.
 | W5 | Remove the contract, confirm | *No file yet.*; the form shows no unsaved changes |
 | W6 | **+ New**, the probe tab, Save | *Save the record…*, then *No file yet.* after the save, without a reload |
 
+**Answered 2026-10-02 on cll365 (Chrome 154, Windows): W1–W6 all as expected.**
+
 ## Demo
 
 `demo.fidelity` is `limited`. The hub's harness answers File and Image
@@ -246,6 +248,5 @@ are in the skill now (*The demo block* in `pcfhub-manifest.md`).
 - The phone client (P10): no Power Apps mobile app was to hand.
 - Browsers other than Chrome 154 on Windows: Edge, Firefox and Safari were
   not opened.
-- 0.1.0 itself on the form: W1–W6 above, until they are answered.
 - The route table, the inline PDF and the 25 MB limit were measured on
   2026-10-02 (above) and are no longer in this list.
