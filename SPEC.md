@@ -219,10 +219,8 @@ two accounts, `.probe-kit/file-preview/`). Import 0.1.0 over the probe.
 ## Demo
 
 `demo.fidelity` is `limited`. The hub's harness answers File and Image
-columns from `demo/fixture.json`'s `dataverse.files` — pcfhub branch
-`feat/demo-file-columns` (`c373422`, `626d23b`, `9fc4e49`), **not yet
-deployed**: until it is, the hub's demo answers these requests with its
-"no Dataverse behind this demo" refusal. The fixture: one account, a contract
+columns from `demo/fixture.json`'s `dataverse.files` — pcfhub #74, merged and
+deployed 2026-10-02. The fixture: one account, a contract
 PDF, a storefront photo with its thumbnail, a CSV price list and an empty
 column (`cr123_signedcopy`), each column 1 MB.
 
@@ -244,6 +242,14 @@ right. 0.1.1 keeps the blob URL first (a form draws it, measured) and on the
 image's `error` draws the same bytes once as a `data:` URL, as
 pcf-file-drop's preview always does — verified in Chrome under that exact
 `img-src` (data URL, 960 px drawn) and without it (blob URL kept).
+
+**0.1.1 on the live hub, measured 2026-10-02** (pcfhub.dev, headless Chrome
+attached to the sandboxed frame — the browser pane's clicks do not reach it):
+every preset right. The photo drawn (480 × 300); the CSV as text; the PDF's
+card, and Download reported by the hub as *The control asked to save
+Framework Agreement 2026.pdf (1.3 KB)*; on the empty column `.exe` and 2 MB
+refused, `Übersicht — 2026.txt` uploaded and read back by name; on the photo
+a text file refused, then Remove → confirm → `DELETE` → empty.
 
 The 0.0.1 build's run in the same harness found that **a PDF cannot draw in
 the demo** (Chrome runs no PDF viewer in a sandboxed document) — hence the
