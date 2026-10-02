@@ -194,6 +194,12 @@
   <data name="FilePreview_Blocked" xml:space="preserve">
     <value>{0} はアップロードできません。この組織ではその種類のファイルがブロックされています。</value>
   </data>
+  <data name="FilePreview_NotImage" xml:space="preserve">
+    <value>{0} は画像ではありません。この列には画像のみを保存できます。</value>
+  </data>
+  <data name="FilePreview_PdfNotHere" xml:space="preserve">
+    <value>この PDF はここでは表示できません。開くかダウンロードしてお読みください。</value>
+  </data>
   <data name="FilePreview_EmptyFile" xml:space="preserve">
     <value>{0} は空です。</value>
   </data>

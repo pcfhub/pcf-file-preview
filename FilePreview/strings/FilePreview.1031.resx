@@ -194,6 +194,12 @@
   <data name="FilePreview_Blocked" xml:space="preserve">
     <value>{0} kann nicht hochgeladen werden: Diese Organisation blockiert Dateien dieses Typs.</value>
   </data>
+  <data name="FilePreview_NotImage" xml:space="preserve">
+    <value>{0} ist kein Bild, und diese Spalte nimmt nur Bilder an.</value>
+  </data>
+  <data name="FilePreview_PdfNotHere" xml:space="preserve">
+    <value>Dieses PDF kann hier nicht angezeigt werden. Öffnen oder laden Sie es herunter, um es zu lesen.</value>
+  </data>
   <data name="FilePreview_EmptyFile" xml:space="preserve">
     <value>{0} ist leer.</value>
   </data>

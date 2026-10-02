@@ -574,6 +574,14 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             }
 
             case 'pdf': {
+                // A sandboxed document cannot draw a PDF at all (the hub's
+                // demo); say so beside Open and Download instead of framing
+                // Chrome's blocked-page icon.
+                if (P.isSandboxed()) {
+                    this.stage.append(this.card(this.str('FilePreview_PdfNotHere')));
+                    break;
+                }
+
                 const frame = document.createElement('iframe');
 
                 frame.className = 'FilePreview-frame';
@@ -602,7 +610,8 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
                 this.stage.append(this.card(this.str('FilePreview_NoPreview')));
         }
 
-        if (PROBE) {
+        // Not in a sandboxed document, where no variant can draw a PDF either.
+        if (PROBE && !P.isSandboxed()) {
             this.probeVariants(file);
         }
     }
@@ -721,7 +730,10 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
         this.draw();
 
         const blocked = await P.blockedAttachments(t.clientUrl);
-        const refusal = refusalFor({ name: file.name, size: file.size }, { maxSizeInKB: t.limits?.maxSizeInKB ?? null, blocked });
+        const refusal = refusalFor(
+            { name: file.name, size: file.size, type: file.type },
+            { maxSizeInKB: t.limits?.maxSizeInKB ?? null, blocked, imageOnly: t.column.kind === 'Image' },
+        );
 
         if (refusal && probeForce()) {
             note('forced', { refusal, name: file.name, size: file.size });
@@ -830,6 +842,8 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
                 return this.str('FilePreview_Blocked', name);
             case 'empty':
                 return this.str('FilePreview_EmptyFile', name);
+            case 'notImage':
+                return this.str('FilePreview_NotImage', name);
             case 'tooBig':
                 return this.str('FilePreview_TooBig', name, formatSize((maxSizeInKB ?? 0) * 1024, this.reading.locale));
             default:
@@ -987,7 +1001,7 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             note('P5 getEntityMetadata', { threw: String(error) });
         }
 
-        note('target', { table: t.table, set: t.set, column: t.column, limits: t.limits });
+        note('target', { table: t.table, set: t.set, column: t.column, limits: t.limits, origin: (globalThis as unknown as { origin?: string }).origin, sandboxed: P.isSandboxed() });
     }
 
     /* ---- small DOM helpers ------------------------------------------------ */

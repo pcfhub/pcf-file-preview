@@ -194,6 +194,12 @@
   <data name="FilePreview_Blocked" xml:space="preserve">
     <value>Impossible de charger {0} : cette organisation bloque les fichiers de ce type.</value>
   </data>
+  <data name="FilePreview_NotImage" xml:space="preserve">
+    <value>{0} n’est pas une image, et cette colonne n’accepte que des images.</value>
+  </data>
+  <data name="FilePreview_PdfNotHere" xml:space="preserve">
+    <value>Ce PDF ne peut pas être affiché ici. Ouvrez-le ou téléchargez-le pour le lire.</value>
+  </data>
   <data name="FilePreview_EmptyFile" xml:space="preserve">
     <value>{0} est vide.</value>
   </data>

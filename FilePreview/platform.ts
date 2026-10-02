@@ -239,6 +239,21 @@ function openFileReader(context: ComponentFramework.Context<IInputs>): HostReadi
     return (file, openMode) => Promise.resolve().then(() => navigation.openFile(file, { openMode })).then(() => undefined);
 }
 
+/**
+ * Whether this document is sandboxed without `allow-same-origin` — an opaque
+ * origin, which reads as the string `"null"`. Chrome will not run its PDF
+ * viewer in a sandboxed document, so a PDF framed there draws the blocked-page
+ * icon instead of the file (measured 2026-10-02 in PCFHub's demo, whose frame
+ * is sandboxed so). A model-driven form is not; this is the demo's case.
+ */
+export function isSandboxed(): boolean {
+    try {
+        return (globalThis as any).origin === 'null';
+    } catch {
+        return false;
+    }
+}
+
 /* ---- requests ------------------------------------------------------------ */
 
 const API = '/api/data/v9.2/';

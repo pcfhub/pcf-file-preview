@@ -6,7 +6,7 @@
  * Pure: the suite loads it from source.
  */
 
-import { extensionOf } from './kind';
+import { effectiveMime, extensionOf, kindOf } from './kind';
 
 /**
  * The largest file one `PATCH` carries. Above it Learn's answer is the
@@ -27,13 +27,15 @@ export const PREVIEW_LIMIT = 25 * 1024 * 1024;
 /** How much of a text file is shown. The rest is a Download away. */
 export const TEXT_LIMIT = 64 * 1024;
 
-export type Refusal = 'empty' | 'blocked' | 'tooBig' | 'tooBigForOneRequest';
+export type Refusal = 'empty' | 'blocked' | 'notImage' | 'tooBig' | 'tooBigForOneRequest';
 
 export interface UploadLimits {
     /** The column's `MaxSizeInKB`, or `null` when it could not be read — then only the server decides. */
     maxSizeInKB: number | null;
     /** `organization.blockedattachments`, split; `[]` when it could not be read. */
     blocked: string[];
+    /** An Image column, which takes image types only (Learn, *Use image column data*). */
+    imageOnly?: boolean;
 }
 
 /** `"ade;exe;js"` → `['ade', 'exe', 'js']` — lower-case, dots and blanks dropped. */
@@ -53,12 +55,15 @@ export function blockedList(raw: unknown): string[] {
  * order is the order a user can do something about: a blocked type is
  * blocked whatever its size.
  */
-export function refusalFor(file: { name: string; size: number }, limits: UploadLimits): Refusal | null {
+export function refusalFor(file: { name: string; size: number; type?: string }, limits: UploadLimits): Refusal | null {
     if (limits.blocked.includes(extensionOf(file.name))) {
         return 'blocked';
     }
     if (file.size === 0) {
         return 'empty';
+    }
+    if (limits.imageOnly && kindOf(effectiveMime(file.type, file.name)) !== 'image') {
+        return 'notImage';
     }
     if (limits.maxSizeInKB !== null && file.size > limits.maxSizeInKB * 1024) {
         return 'tooBig';

@@ -624,6 +624,26 @@ async function controlChecks() {
         handedLarge.join(' ; '),
     );
 
+    /*
+     * A sandboxed document — PCFHub's demo frame, no allow-same-origin — has
+     * the origin "null", and Chrome will not draw a PDF in one: the frame shows
+     * its blocked-page icon (measured 2026-10-02 in the real harness). The PDF
+     * is offered to Open and Download instead.
+     */
+    global.origin = 'null';
+
+    const sandboxed = mount(on('c1'));
+
+    await settle();
+    delete global.origin;
+
+    check(
+        'in a sandboxed document a PDF is not framed: a card says so, and Open and Download stay',
+        !sandboxed.find('iframe.FilePreview-frame') && textOf(sandboxed, '.FilePreview-card .FilePreview-prompt') === 'resx:FilePreview_PdfNotHere'
+            && shown(sandboxed, 'open') && shown(sandboxed, 'download'),
+        textOf(sandboxed, '.FilePreview-card .FilePreview-prompt'),
+    );
+
     /* ---- handing the file over ------------------------------------------ */
 
     const hand = mount(on('c1'));
@@ -739,6 +759,17 @@ async function controlChecks() {
         blockedNotice === 'resx:FilePreview_Blocked' && tooBigNotice === 'resx:FilePreview_TooBig' && emptyNotice === 'resx:FilePreview_EmptyFile'
             && writes(refusing).length === 0 && refusing.find('.FilePreview-status').classList.contains('FilePreview-status--error'),
         [blockedNotice, tooBigNotice, emptyNotice].join(' | '),
+    );
+
+    const photoColumn = mount(on('c1', { inputs: { ...allow, fileColumn: 'cll_photo' } }));
+
+    await settle();
+    drop(photoColumn, [new File(['not a picture'], 'notes.txt', { type: 'text/plain' })]);
+    await settle();
+    check(
+        'a file that is not an image is refused for an Image column before it is sent',
+        textOf(photoColumn, '.FilePreview-status') === 'resx:FilePreview_NotImage' && writes(photoColumn).length === 0,
+        textOf(photoColumn, '.FilePreview-status'),
     );
 
     const forbidden = mount(on('k1', { inputs: allow, fileWrite: false }));
@@ -1025,12 +1056,13 @@ async function fileColumnSelfCheck() {
     const big = await call('accounts(k1)/cll_photo', { method: 'PATCH', headers: { 'x-ms-file-name': 'huge.png' }, body: new Uint8Array(10240 * 1024 + 1) });
     const blocked = await call('accounts(k1)/cll_filenative', { method: 'PATCH', headers: { 'x-ms-file-name': 'setup.EXE' }, body: 'MZ' });
     const unnamed = await call('accounts(k1)/cll_filenative', { method: 'PATCH', body: 'x' });
+    const notImage = await call('accounts(k1)/cll_photo', { method: 'PATCH', headers: { 'x-ms-file-name': 'notes.txt' }, body: 'text' });
     const denied = host.createContext({ fixture, clientUrl: host.nextClientUrl(), fileWrite: false });
     const deniedPut = await call('accounts(k1)/cll_filenative', { method: 'PATCH', headers: { 'x-ms-file-name': 'a.txt' }, body: 'x' }, denied);
     const deniedRead = await call('accounts(c1)/cll_filenative/$value', undefined, denied);
     check(
-        "rig: a PATCH over MaxSizeInKB is 0x80044a02, a blocked extension is refused whatever its case, a nameless one 400, and without Write it is 403 while the read still answers",
-        big.status === 400 && (await big.json()).error.code === '0x80044a02' && blocked.status === 400 && unnamed.status === 400
+        "rig: a PATCH over MaxSizeInKB is 0x80044a02, a blocked extension is refused whatever its case, a nameless one 400, a non-image into an Image column 400, and without Write it is 403 while the read still answers",
+        big.status === 400 && (await big.json()).error.code === '0x80044a02' && blocked.status === 400 && unnamed.status === 400 && notImage.status === 400
             && deniedPut.status === 403 && deniedRead.status === 200,
         [big.status, blocked.status, unnamed.status, deniedPut.status, deniedRead.status].join(' '),
     );

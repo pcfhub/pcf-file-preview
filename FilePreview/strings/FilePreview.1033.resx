@@ -191,6 +191,12 @@
   <data name="FilePreview_Blocked" xml:space="preserve">
     <value>{0} cannot be uploaded: this organisation blocks files of that type.</value>
   </data>
+  <data name="FilePreview_NotImage" xml:space="preserve">
+    <value>{0} is not an image, and this column takes images only.</value>
+  </data>
+  <data name="FilePreview_PdfNotHere" xml:space="preserve">
+    <value>This PDF can’t be shown here. Open or download it to read it.</value>
+  </data>
   <data name="FilePreview_EmptyFile" xml:space="preserve">
     <value>{0} is empty.</value>
   </data>

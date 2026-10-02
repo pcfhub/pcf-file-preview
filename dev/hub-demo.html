@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--
+  A stand-in for the hub's component page: frames PCFHub's demo harness and
+  answers its handshake with this control's manifest, its strings, its
+  stylesheet and demo/fixture.json — so the control runs inside the real
+  harness, against the real stand-in Dataverse, before anything is published.
+
+      npm run harness -- --no-open --port 8107          # this repository
+      npm run dev:demo-harness   (in ../pcfhub, port 4174, on the branch with File columns)
+
+  then open http://localhost:8107/dev/hub-demo.html. The frame is sandboxed as
+  the hub's is (allow-scripts only), so the page cannot reach inside it: what
+  the harness says comes back as messages, listed under the frame.
+
+    ?changes=0      Allow replace and remove off
+    ?column=cr123_photo   the Image column instead of the File column
+    ?harness=http://localhost:4174   where the harness is served
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>File Preview — in the hub's demo harness</title>
+    <style>
+        body { margin: 0; padding: 24px; font-family: "Segoe UI", sans-serif; background: #f0f0f0; }
+        iframe { display: block; width: 640px; height: 640px; border: 1px solid #d1d1d1; background: #fff; }
+        #log { margin-top: 12px; max-width: 900px; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <iframe id="frame" sandbox="allow-scripts" title="demo"></iframe>
+    <div id="log"></div>
+    <script>
+        (async function () {
+            'use strict';
+
+            var params = new URLSearchParams(location.search);
+            var harness = params.get('harness') || 'http://localhost:4174';
+            var session = 'stand-in-' + Math.random().toString(36).slice(2);
+            var frame = document.getElementById('frame');
+            var logBox = document.getElementById('log');
+            var messages = [];
+
+            window.__messages = messages;
+
+            function log(line) {
+                logBox.textContent += line + '\n';
+            }
+
+            var base = location.origin;
+            var resx = await (await fetch('../FilePreview/strings/FilePreview.1033.resx')).text();
+            var strings = {};
+
+            new DOMParser().parseFromString(resx, 'application/xml').querySelectorAll('data').forEach(function (node) {
+                strings[node.getAttribute('name')] = node.querySelector('value').textContent;
+            });
+
+            var css = await (await fetch('../out/controls/FilePreview/css/FilePreview.css')).text();
+            var fixture = await (await fetch('../demo/fixture.json')).json();
+
+            var manifest = {
+                component: { slug: 'pcf-file-preview', name: 'File Preview' },
+                version: '0.0.1',
+                framework: 'standard',
+                controlType: 'field',
+                namespace: 'PCFHub',
+                constructor: 'FilePreview',
+                bundleUrl: base + '/out/controls/FilePreview/bundle.js',
+                styles: [css],
+                resources: { strings: { 'en-US': strings } },
+                properties: [
+                    { name: 'value', kind: 'bound', ofType: 'SingleLine.Text', required: true },
+                    { name: 'fileColumn', kind: 'input', ofType: 'SingleLine.Text' },
+                    { name: 'allowChanges', kind: 'input', ofType: 'TwoOptions' },
+                    { name: 'previewHeight', kind: 'input', ofType: 'Whole.None', default: 480 },
+                    { name: 'recordId', kind: 'input', ofType: 'SingleLine.Text' },
+                    { name: 'recordEntity', kind: 'input', ofType: 'SingleLine.Text' },
+                ],
+                featureUsage: ['Utility'],
+                fidelity: 'limited',
+            };
+            var props = {
+                value: 'Adventure Works',
+                fileColumn: params.get('column') || '',
+                allowChanges: params.get('changes') !== '0',
+                previewHeight: 420,
+                recordId: null,
+                recordEntity: null,
+            };
+
+            window.addEventListener('message', function (event) {
+                var data = event.data || {};
+
+                if (data.sessionId !== session) {
+                    return;
+                }
+
+                messages.push(data);
+
+                if (data.type === 'harness:hello') {
+                    frame.contentWindow.postMessage({
+                        v: 1,
+                        sessionId: session,
+                        type: 'harness:init',
+                        manifest: manifest,
+                        props: props,
+                        theme: 'light',
+                        locale: 'en-US',
+                        datasetFixture: fixture,
+                        width: 600,
+                        height: -1,
+                        formFactor: 1,
+                    }, '*');
+                    log('→ harness:init');
+                    return;
+                }
+
+                var detail = data.type === 'harness:log' ? data.level + ': ' + data.message
+                    : data.type === 'harness:error' ? data.phase + ': ' + (data.error && data.error.message)
+                    : data.type === 'harness:navigate' ? JSON.stringify(Object.assign({}, data, { fileContent: data.fileContent ? '(' + data.fileContent.length + ' base64 chars)' : undefined, v: undefined, sessionId: undefined }))
+                    : '';
+
+                log('← ' + data.type + (detail ? '  ' + detail : ''));
+            });
+
+            frame.src = harness + '/?session=' + encodeURIComponent(session);
+        })();
+    </script>
+</body>
+</html>
