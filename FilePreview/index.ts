@@ -543,6 +543,7 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
                 img.alt = file.name;
                 img.decoding = 'async';
                 img.src = file.url ?? '';
+                this.drawFromDataIfRefused(img, file.blob);
                 this.stage.append(img);
 
                 if (file.thumbnailOnly) {
@@ -588,6 +589,36 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
             default:
                 this.stage.append(this.card(this.str('FilePreview_NoPreview')));
         }
+    }
+
+    /**
+     * A host whose content-security policy allows `data:` images but not
+     * `blob:` ones refuses the object URL — measured on PCFHub's demo origin
+     * (`img-src 'self' https://cdn.pcfhub.dev data:`), where the photo showed
+     * as a broken image. A model-driven form draws the blob (measured), so the
+     * blob stays first; on an `error` the same bytes are drawn once more as a
+     * data URL, the way pcf-file-drop's preview always is. Once: a file the
+     * browser cannot decode fails both ways and stays a broken image.
+     */
+    private drawFromDataIfRefused(img: HTMLImageElement, blob: Blob | null): void {
+        if (!blob) {
+            return;
+        }
+
+        let retried = false;
+
+        img.addEventListener('error', () => {
+            if (retried || this.destroyed) {
+                return;
+            }
+
+            retried = true;
+            void dataUrlOf(blob).then((url) => {
+                if (url !== null && !this.destroyed) {
+                    img.src = url;
+                }
+            });
+        });
     }
 
     private card(text: string): HTMLElement {
@@ -946,6 +977,23 @@ export class FilePreview implements ComponentFramework.StandardControl<IInputs, 
 function objectUrl(blob: Blob): string | null {
     try {
         return typeof URL?.createObjectURL === 'function' ? URL.createObjectURL(blob) : null;
+    } catch {
+        return null;
+    }
+}
+
+/** The bytes as a `data:` URL, typed as the blob is; `null` if they cannot be read. */
+async function dataUrlOf(blob: Blob): Promise<string | null> {
+    try {
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        let binary = '';
+
+        // In slices: one `fromCharCode` over a multi-megabyte array overflows the stack.
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+        }
+
+        return `data:${blob.type || 'application/octet-stream'};base64,${btoa(binary)}`;
     } catch {
         return null;
     }

@@ -7,7 +7,7 @@
   -->
   <control namespace="PCFHub"
            constructor="FilePreview"
-           version="0.1.0"
+           version="0.1.1"
            display-name-key="FilePreview_Name"
            description-key="FilePreview_Desc"
            control-type="standard">

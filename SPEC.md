@@ -236,6 +236,15 @@ right through `Content-Disposition`; on the photo a text file refused, then
 Remove → the confirm dialog → `DELETE` → the empty state (an Image column's
 204).
 
+**On the live hub (2026-10-02, after pcfhub #74 deployed) the photo was a
+broken image** — not seen in the stand-in run, because the local dev server
+sends no content-security policy and `demos.pcfhub.dev` does:
+`img-src 'self' https://cdn.pcfhub.dev data:`, no `blob:`. The PDF card was
+right. 0.1.1 keeps the blob URL first (a form draws it, measured) and on the
+image's `error` draws the same bytes once as a `data:` URL, as
+pcf-file-drop's preview always does — verified in Chrome under that exact
+`img-src` (data URL, 960 px drawn) and without it (blob URL kept).
+
 The 0.0.1 build's run in the same harness found that **a PDF cannot draw in
 the demo** (Chrome runs no PDF viewer in a sandboxed document) — hence the
 card on an opaque origin — and the stand-in-parent technique itself; both

@@ -1,6 +1,6 @@
 {
   "name": "pcf-file-preview",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "See the PDF or image in a File or Image column on the form — and download, replace or remove it.",
   "license": "MIT",
   "private": true,

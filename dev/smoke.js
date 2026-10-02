@@ -661,6 +661,35 @@ async function controlChecks() {
     );
 
     /*
+     * A content-security policy that allows `data:` images and not `blob:` —
+     * PCFHub's demo origin, measured 2026-10-02: the photo was a broken image.
+     * The browser's refusal arrives as the image's `error`; the control draws
+     * the same bytes again as a data URL, once.
+     */
+    const refusedBlob = mount(on('c1', { inputs: { fileColumn: 'cll_photo' } }));
+
+    await settle();
+    const refusedPhoto = refusedBlob.find('img.FilePreview-image');
+    const firstSrc = refusedPhoto && refusedPhoto.src;
+
+    refusedPhoto && refusedPhoto.dispatchEvent({ type: 'error', target: refusedPhoto, preventDefault() {} });
+    await settle();
+    const dataSrc = refusedPhoto && refusedPhoto.src;
+
+    // A second failure — the bytes themselves undecodable — must not retry:
+    // mark the source, fail again, and the mark has to survive.
+    if (refusedPhoto) {
+        refusedPhoto.src = 'data:marker';
+        refusedPhoto.dispatchEvent({ type: 'error', target: refusedPhoto, preventDefault() {} });
+    }
+    await settle();
+    check(
+        'an image whose blob URL the host refuses is drawn again from a data URL — once, so an undecodable file does not loop',
+        /^blob:/.test(String(firstSrc)) && /^data:image\/png;base64,/.test(String(dataSrc)) && refusedPhoto.src === 'data:marker',
+        `${String(firstSrc).slice(0, 20)} → ${String(dataSrc).slice(0, 30)}`,
+    );
+
+    /*
      * The phone app — `client.getClient()` is `Mobile` — gets the same card for
      * a PDF: Android's WebView has no PDF viewer. Decided, not measured
      * (SPEC.md, P10 was not run). An image still draws.
