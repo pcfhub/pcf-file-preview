@@ -1,0 +1,25 @@
+# dependencies
+/node_modules
+
+# pcf-scripts generates ManifestTypes from ControlManifest.Input.xml on build
+**/generated
+
+# control build output
+/out
+
+# msbuild output
+/bin
+/obj
+**/bin/
+**/obj/
+
+# release staging, produced by the workflow
+/artifacts
+
+*.pcfproj.user
+*.cdsproj.user
+
+# release notes, drafted by scripts/release.mjs and rewritten by hand.
+# Not committed: the tag message is where these live, and a stale copy in the
+# tree reads as the current release's notes when it is the previous one's.
+/.release-notes.md

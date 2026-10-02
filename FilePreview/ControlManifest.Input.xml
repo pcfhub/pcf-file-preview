@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <!--
+    The version here is what the Power Platform upgrades on, and the release
+    workflow refuses to publish a tag that disagrees with it. Bump this in the
+    same commit as the tag.
+  -->
+  <control namespace="PCFHub"
+           constructor="FilePreview"
+           version="0.0.1"
+           display-name-key="FilePreview_Name"
+           description-key="FilePreview_Desc"
+           control-type="standard">
+
+    <!--
+      Leave this disabled unless the control calls a third-party service.
+
+      `enabled="true"` makes the control **premium**, and premium is a cost
+      somebody else pays: every end user of an app containing this component
+      then needs a Power Apps licence rather than an Office 365 one.
+
+      Every request here goes to the organisation's own URL — the file's
+      bytes, the table's definition, the column's limits — same origin, no
+      domain to declare.
+    -->
+    <external-service-usage enabled="false" />
+
+    <!--
+      PCFHub generates the component's API reference from this file, at the tag
+      of each release. It records `display-name-key` and `description-key`
+      verbatim — it does not read the .resx — so keep the keys readable.
+    -->
+
+    <!--
+      The column this control is placed on. It can be ANY column: the file
+      lives in a File or Image column, and no manifest can bind either kind —
+      `of-type` has no File, and `ImageObject` is canvas only — so the control
+      sits on another column and reaches the file through the Web API, by the
+      record's id. It never reads or writes this value.
+
+      A type group this wide erases the generated `raw` type to `any`, which
+      is the price of "any column". Nothing here touches `raw`. File, Image
+      and the Customer/Owner/Regarding lookups are not bindable by any
+      control and are not listed. The same group as pcf-audit-history.
+    -->
+    <type-group name="anyColumn">
+      <type>SingleLine.Text</type>
+      <type>SingleLine.TextArea</type>
+      <type>SingleLine.Email</type>
+      <type>SingleLine.Phone</type>
+      <type>SingleLine.URL</type>
+      <type>SingleLine.Ticker</type>
+      <type>Multiple</type>
+      <type>Whole.None</type>
+      <type>Decimal</type>
+      <type>FP</type>
+      <type>Currency</type>
+      <type>DateAndTime.DateOnly</type>
+      <type>DateAndTime.DateAndTime</type>
+      <type>OptionSet</type>
+      <type>MultiSelectOptionSet</type>
+      <type>TwoOptions</type>
+      <type>Lookup.Simple</type>
+    </type-group>
+
+    <property name="value"
+              display-name-key="value_Name"
+              description-key="value_Desc"
+              of-type-group="anyColumn"
+              usage="bound"
+              required="true" />
+
+    <!--
+      The File or Image column to show, by logical name (`cr123_contract`).
+      Blank takes the table's only File or Image column, and names the
+      candidates when there is more than one — a guess between two would show
+      the wrong document with nothing to say so.
+    -->
+    <property name="fileColumn"
+              display-name-key="fileColumn_Name"
+              description-key="fileColumn_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+
+    <!--
+      On: Replace (a file input and a drop target) and Remove, behind the
+      platform's confirm dialog. Off (the default — a TwoOptions input cannot
+      default to on, and a write is opt-in whatever it is called): the file is
+      shown and downloaded, never changed. Neither is offered on a read-only
+      form, to a user without Write on the table, or on an unsaved record.
+    -->
+    <property name="allowChanges"
+              display-name-key="allowChanges_Name"
+              description-key="allowChanges_Desc"
+              of-type="TwoOptions"
+              usage="input"
+              required="false" />
+
+    <!--
+      The preview's height in pixels — a PDF's frame, the most an image or a
+      text file is allowed to take before it scrolls. Clamped to 120–2000 by
+      the control.
+    -->
+    <property name="previewHeight"
+              display-name-key="previewHeight_Name"
+              description-key="previewHeight_Desc"
+              of-type="Whole.None"
+              usage="input"
+              required="false"
+              default-value="480" />
+
+    <!--
+      The record this control is on, supplied by the maker.
+
+      `context` deliberately does not carry the record's identity — the
+      platform FAQ says to add input properties and bind them on the form. The
+      control prefers the undocumented `context.mode.contextInfo` when the
+      host has it (a model-driven form does) and falls back to these two.
+    -->
+    <property name="recordId"
+              display-name-key="recordId_Name"
+              description-key="recordId_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+
+    <property name="recordEntity"
+              display-name-key="recordEntity_Name"
+              description-key="recordEntity_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+
+    <resources>
+      <code path="index.ts" order="1" />
+      <css path="css/FilePreview.css" order="1" />
+      <!--
+        Every language the control ships. THE ORDER IS DELIBERATE AND 1033 GOES
+        LAST: `pcf-start` reads whichever file is listed last. The platform
+        ignores the order. ADD A NEW LANGUAGE ABOVE 1033.
+      -->
+      <resx path="strings/FilePreview.3082.resx" version="1.0.0" />
+      <resx path="strings/FilePreview.1036.resx" version="1.0.0" />
+      <resx path="strings/FilePreview.1031.resx" version="1.0.0" />
+      <resx path="strings/FilePreview.1041.resx" version="1.0.0" />
+      <resx path="strings/FilePreview.1033.resx" version="1.0.0" />
+    </resources>
+
+    <!--
+      Optional, because the control degrades rather than refuses: without it
+      Replace and Remove are offered whatever the user's roles, and the
+      server's own refusal is what a user without Write sees.
+      `utils.hasEntityPrivilege` is published either way and THROWS when this
+      is not declared (measured, pcf-row-commands P1, 2026-09-25).
+
+      No `WebAPI`: the file is a URL of its own on the organisation —
+      `<set>(<id>)/<column>/$value` — which `context.webAPI` cannot address,
+      so every request is a same-origin `fetch`, and no feature gates that.
+    -->
+    <feature-usage>
+      <uses-feature name="Utility" required="false" />
+    </feature-usage>
+  </control>
+</manifest>

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+
+  "slug": "pcf-file-preview",
+  "name": "File Preview",
+  "tagline": "See the PDF or image in a File or Image column on the form — and download, replace or remove it.",
+  "summary": "__SUMMARY__",
+  "category": "input",
+  "hosts": ["model-driven"],
+  "tags": [],
+
+  "control": {
+    "namespace": "PCFHub",
+    "constructor": "FilePreview",
+    "type": "field",
+    "framework": "standard",
+    "manifestPath": "FilePreview/ControlManifest.Input.xml"
+  },
+
+  "links": {
+    "homepage": "https://github.com/pcfhub/pcf-file-preview",
+    "support": "https://github.com/pcfhub/pcf-file-preview/issues",
+    "license": "MIT"
+  },
+
+  "docs": {
+    "path": "docs"
+  },
+
+  "media": {
+    "logo": "media/logo.png",
+    "screenshots": []
+  },
+
+  "demo": {
+    "fidelity": "none",
+    "presets": []
+  }
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--
+  Every state of File Preview, side by side, in a real browser — for looking
+  at, and for the screenshots in `media/`.
+
+      npm run build && npm run harness      then open /dev/preview.html
+
+  `smoke.js` asserts what the control decided; this shows what it drew, which
+  is the half no assertion reaches. Each card is its own mount on the rig's
+  `fetch` stub, answered from `dev/fixture.js` — Learn's shapes, not a form's.
+
+  Query parameters, all optional:
+    ?dark=1           the dark fallbacks (no Fluent tokens are published here)
+    ?width=320        each card's width in px (default 560)
+    ?only=pdf,empty   just those cards, by id
+    ?probe=0          hide the 0.0.x probe's P2 variants under a PDF or image
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>File Preview — preview</title>
+    <link rel="stylesheet" href="../out/controls/FilePreview/css/FilePreview.css" />
+    <style>
+        /* The host page: a form's ground and padding, nothing of the control. */
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #f0f0f0;
+            font-family: "Segoe UI", sans-serif;
+        }
+        body.dark {
+            background: #0a0a0a;
+            color: #fff;
+        }
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .card {
+            box-sizing: border-box;
+            padding: 16px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .14), 0 0 2px rgba(0, 0, 0, .12);
+        }
+        .dark .card {
+            background: #292929;
+        }
+        .card h2 {
+            margin: 0 0 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #616161;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .card .label {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .dark .card h2 {
+            color: #adadad;
+        }
+        .hide-probe .FilePreview-probe {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid" id="grid"></div>
+
+    <script src="fixture.js"></script>
+    <script src="host.js"></script>
+    <script>
+        // The bundle registers itself on load; catch it before it runs.
+        window.__registration = window.__pcfHost.captureRegistration(window);
+    </script>
+    <script src="../out/controls/FilePreview/bundle.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            var host = window.__pcfHost;
+            var fixture = window.__pcfFixture;
+            var params = new URLSearchParams(window.location.search);
+            var dark = params.get('dark') === '1';
+            var width = Number(params.get('width')) || 560;
+            var only = (params.get('only') || '').split(',').filter(Boolean);
+
+            document.body.classList.toggle('dark', dark);
+            document.body.classList.toggle('hide-probe', params.get('probe') === '0');
+
+            /** The fixture with a change, copied so the cards do not share it. */
+            function fixtureWith(change) {
+                var copy = JSON.parse(JSON.stringify(fixture));
+
+                change(copy);
+
+                return copy;
+            }
+
+            /*
+             * A picture worth looking at. The fixture's photo is 8×6 — right
+             * for the suite, which reads bytes, and a speck in a screenshot,
+             * because the control draws an image at its own size and never
+             * enlarges it. So this page paints one and swaps it in.
+             */
+            var pictured = fixtureWith(function (f) {
+                var canvas = document.createElement('canvas');
+                var g = canvas.getContext('2d');
+
+                canvas.width = 960;
+                canvas.height = 600;
+
+                var sky = g.createLinearGradient(0, 0, 0, 600);
+
+                sky.addColorStop(0, '#9fc8ee');
+                sky.addColorStop(1, '#e8f1fa');
+                g.fillStyle = sky;
+                g.fillRect(0, 0, 960, 600);
+                g.fillStyle = '#5b6b7a';
+                g.fillRect(120, 180, 720, 360);
+                g.fillStyle = '#0f6cbd';
+                g.fillRect(120, 150, 720, 70);
+                g.fillStyle = '#ffffff';
+                g.font = '600 44px Segoe UI, sans-serif';
+                g.fillText('CONTOSO', 380, 200);
+                g.fillStyle = '#cfe4f7';
+                [170, 390, 610].forEach(function (x) { g.fillRect(x, 260, 180, 150); });
+                g.fillStyle = '#3a2f28';
+                g.fillRect(430, 430, 100, 110);
+                g.fillStyle = '#7a8a5a';
+                g.fillRect(0, 540, 960, 60);
+
+                f.files['account|c1|cll_photo'] = {
+                    name: 'storefront.png',
+                    mimeType: 'image/png',
+                    content: canvas.toDataURL('image/png').split(',')[1],
+                };
+            });
+
+            var big = fixtureWith(function () {});
+
+            big.files['account|k2|cll_filenative'] = { name: 'Site survey — full scan.pdf', mimeType: 'application/pdf', bytes: new Uint8Array(26 * 1024 * 1024) };
+
+            var on = function (id) {
+                return { entityId: id, entityTypeName: 'account' };
+            };
+
+            var STATES = [
+                { id: 'pdf', title: 'A PDF', options: { contextInfo: on('c1') } },
+                { id: 'image', title: 'An Image column, full size', options: { contextInfo: on('c1'), fixture: pictured, inputs: { fileColumn: 'cll_photo', previewHeight: 280 } } },
+                { id: 'text', title: 'A text file', options: { contextInfo: on('p1'), inputs: { previewHeight: 160 } } },
+                { id: 'editable', title: 'Replace and Remove on', options: { contextInfo: on('p1'), inputs: { allowChanges: true, previewHeight: 160 } } },
+                { id: 'empty', title: 'Empty, changes on', options: { contextInfo: on('k1'), inputs: { allowChanges: true } } },
+                { id: 'emptyReadOnly', title: 'Empty, changes off', options: { contextInfo: on('k1') } },
+                { id: 'tooLarge', title: 'Too large to preview', options: { contextInfo: on('k2'), fixture: big } },
+                {
+                    id: 'ambiguous',
+                    title: 'Two File columns, none named',
+                    options: {
+                        contextInfo: on('c1'),
+                        fixture: fixtureWith(function (f) {
+                            f.metadata.tables.account.columns.push({ name: 'cll_contract', type: 'Virtual', typeName: 'FileType', label: 'Contract' });
+                        }),
+                    },
+                },
+                { id: 'saveFirst', title: 'A new record', options: { contextInfo: { entityTypeName: 'account' } } },
+                { id: 'canvas', title: 'A canvas app', options: { contextInfo: on('c1'), host: 'canvas' } },
+                { id: 'offline', title: 'No connection', options: { contextInfo: on('c1'), filesStatus: 0 } },
+            ];
+
+            var grid = document.getElementById('grid');
+
+            /* Real strings: the rig's getString answers with the 1033 .resx's text when given it. */
+            var strings = {};
+
+            fetch('../FilePreview/strings/FilePreview.1033.resx')
+                .then(function (r) { return r.text(); })
+                .then(function (xml) {
+                    var doc = new DOMParser().parseFromString(xml, 'application/xml');
+
+                    Array.prototype.forEach.call(doc.querySelectorAll('data'), function (node) {
+                        strings[node.getAttribute('name')] = node.querySelector('value').textContent;
+                    });
+                })
+                .catch(function () {})
+                .then(function () {
+                    STATES.filter(function (s) { return only.length === 0 || only.indexOf(s.id) !== -1; }).forEach(mount);
+                });
+
+            function mount(state) {
+                var card = document.createElement('section');
+                var heading = document.createElement('h2');
+                var label = document.createElement('p');
+                var container = document.createElement('div');
+
+                card.className = 'card';
+                card.id = state.id;
+                card.style.width = width + 'px';
+                heading.textContent = state.title;
+                label.className = 'label';
+                label.textContent = 'Contract';
+                card.append(heading, label, container);
+                grid.append(card);
+
+                var options = Object.assign({
+                    clientUrl: host.nextClientUrl(),
+                    fixture: fixture,
+                    label: 'Contract',
+                    dark: dark,
+                    host: 'model-driven',
+                    getString: function (key) { return strings[key] !== undefined ? strings[key] : key; },
+                }, state.options);
+                var instance = new window.__registration.ctor();
+
+                instance.init(host.createContext(options), function () {}, {}, container);
+                instance.updateView(host.createContext(options));
+                window.__instances = window.__instances || {};
+                window.__instances[state.id] = instance;
+            }
+        })();
+    </script>
+</body>
+</html>

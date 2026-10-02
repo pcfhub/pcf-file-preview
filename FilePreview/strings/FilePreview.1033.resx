@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Display names and descriptions for everything declared in
+    ControlManifest.Input.xml. PCFHub reads the manifest, so these strings are
+    what appear in the component's API reference on the hub as well as in the
+    maker's properties pane.
+
+    Copy this file to add a language — FilePreview.3082.resx for Spanish, and so
+    on — then list it under <resources> in the manifest.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="FilePreview_Name" xml:space="preserve">
+    <value>File Preview</value>
+  </data>
+  <data name="FilePreview_Desc" xml:space="preserve">
+    <value>See the PDF or image in a File or Image column on the form — and download, replace or remove it.</value>
+  </data>
+  <data name="value_Name" xml:space="preserve">
+    <value>Placed on</value>
+  </data>
+  <data name="value_Desc" xml:space="preserve">
+    <value>Any column on the form. The control never reads or writes it — the file comes from the File or Image column named below.</value>
+  </data>
+  <data name="fileColumn_Name" xml:space="preserve">
+    <value>File column</value>
+  </data>
+  <data name="fileColumn_Desc" xml:space="preserve">
+    <value>Logical name of the File or Image column to show. Blank takes the table’s only File column.</value>
+  </data>
+  <data name="allowChanges_Name" xml:space="preserve">
+    <value>Allow replace and remove</value>
+  </data>
+  <data name="allowChanges_Desc" xml:space="preserve">
+    <value>On: the file can be replaced (choose or drop a file) and removed. Off: it is shown and downloaded only.</value>
+  </data>
+  <data name="previewHeight_Name" xml:space="preserve">
+    <value>Preview height</value>
+  </data>
+  <data name="previewHeight_Desc" xml:space="preserve">
+    <value>Height of the preview in pixels, 120 to 2000.</value>
+  </data>
+  <data name="recordId_Name" xml:space="preserve">
+    <value>Record ID</value>
+  </data>
+  <data name="recordId_Desc" xml:space="preserve">
+    <value>The record’s id, for a host that does not say which record the control is on. Leave blank on a model-driven form.</value>
+  </data>
+  <data name="recordEntity_Name" xml:space="preserve">
+    <value>Record table</value>
+  </data>
+  <data name="recordEntity_Desc" xml:space="preserve">
+    <value>The record’s table (logical name), with Record ID. Leave blank on a model-driven form.</value>
+  </data>
+  <data name="FilePreview_NoAccess" xml:space="preserve">
+    <value>You do not have access to this file.</value>
+  </data>
+  <data name="FilePreview_Loading" xml:space="preserve">
+    <value>Loading the file…</value>
+  </data>
+  <data name="FilePreview_Empty" xml:space="preserve">
+    <value>No file yet.</value>
+  </data>
+  <data name="FilePreview_DropHint" xml:space="preserve">
+    <value>Drop a file here, or</value>
+  </data>
+  <data name="FilePreview_Choose" xml:space="preserve">
+    <value>Choose a file</value>
+  </data>
+  <data name="FilePreview_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="FilePreview_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="FilePreview_Replace" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="FilePreview_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="FilePreview_Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="FilePreview_Uploading" xml:space="preserve">
+    <value>Uploading {0}…</value>
+  </data>
+  <data name="FilePreview_Removing" xml:space="preserve">
+    <value>Removing the file…</value>
+  </data>
+  <data name="FilePreview_Saving" xml:space="preserve">
+    <value>Fetching {0}…</value>
+  </data>
+  <data name="FilePreview_SaveFirst" xml:space="preserve">
+    <value>Save the record to see or add a file.</value>
+  </data>
+  <data name="FilePreview_NeedsForm" xml:space="preserve">
+    <value>File Preview needs a model-driven form: this app gives it no way to reach the file.</value>
+  </data>
+  <data name="FilePreview_NoColumn" xml:space="preserve">
+    <value>This table has no File or Image column to show.</value>
+  </data>
+  <data name="FilePreview_Ambiguous" xml:space="preserve">
+    <value>Set File column in this control’s properties to one of: {0}.</value>
+  </data>
+  <data name="FilePreview_NotFileColumn" xml:space="preserve">
+    <value>“{0}” is not a File or Image column on this table.</value>
+  </data>
+  <data name="FilePreview_DefinitionFailed" xml:space="preserve">
+    <value>The table’s columns could not be read. Try again in a moment.</value>
+  </data>
+  <data name="FilePreview_Offline" xml:space="preserve">
+    <value>The file could not be reached. Check the connection and try again.</value>
+  </data>
+  <data name="FilePreview_LoadFailed" xml:space="preserve">
+    <value>The file could not be loaded: {0}</value>
+  </data>
+  <data name="FilePreview_TooLarge" xml:space="preserve">
+    <value>This file ({0}) is too large to preview here. Download it to open it.</value>
+  </data>
+  <data name="FilePreview_NoPreview" xml:space="preserve">
+    <value>This kind of file cannot be previewed here.</value>
+  </data>
+  <data name="FilePreview_TextCut" xml:space="preserve">
+    <value>Showing the first {0}. Download the file to see all of it.</value>
+  </data>
+  <data name="FilePreview_ThumbnailOnly" xml:space="preserve">
+    <value>This column keeps only a thumbnail of the image.</value>
+  </data>
+  <data name="FilePreview_PreviewOf" xml:space="preserve">
+    <value>Preview of {0}</value>
+  </data>
+  <data name="FilePreview_Blocked" xml:space="preserve">
+    <value>{0} cannot be uploaded: this organisation blocks files of that type.</value>
+  </data>
+  <data name="FilePreview_EmptyFile" xml:space="preserve">
+    <value>{0} is empty.</value>
+  </data>
+  <data name="FilePreview_TooBig" xml:space="preserve">
+    <value>{0} is larger than this column allows ({1}).</value>
+  </data>
+  <data name="FilePreview_TooBigOneRequest" xml:space="preserve">
+    <value>{0} is larger than 128 MB, which this control cannot upload.</value>
+  </data>
+  <data name="FilePreview_UploadFailed" xml:space="preserve">
+    <value>The file could not be uploaded: {0}</value>
+  </data>
+  <data name="FilePreview_RemoveFailed" xml:space="preserve">
+    <value>The file could not be removed: {0}</value>
+  </data>
+  <data name="FilePreview_NotPermitted" xml:space="preserve">
+    <value>You do not have permission to change this file.</value>
+  </data>
+  <data name="FilePreview_DownloadFailed" xml:space="preserve">
+    <value>The file could not be downloaded.</value>
+  </data>
+  <data name="FilePreview_ConfirmTitle" xml:space="preserve">
+    <value>Remove the file?</value>
+  </data>
+  <data name="FilePreview_ConfirmText" xml:space="preserve">
+    <value>{0} will be removed from this record. This cannot be undone.</value>
+  </data>
+</root>

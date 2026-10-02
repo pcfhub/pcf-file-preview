@@ -1,0 +1,204 @@
+# File Preview
+
+See the PDF or image in a File or Image column on the form — and download, replace or remove it.
+
+[![Build](https://github.com/pcfhub/pcf-file-preview/actions/workflows/build.yml/badge.svg)](https://github.com/pcfhub/pcf-file-preview/actions/workflows/build.yml)
+[![Release](https://github.com/pcfhub/pcf-file-preview/actions/workflows/release.yml/badge.svg)](https://github.com/pcfhub/pcf-file-preview/actions/workflows/release.yml)
+
+[![Try it live on PCFHub](https://pcfhub.dev/badges/try-it-live.svg)](https://pcfhub.dev/components/pcf-file-preview)
+
+Documentation lives on [PCFHub](https://pcfhub.dev/components/pcf-file-preview), built
+from the `docs/` directory in this repository. Edit the Markdown here; the hub
+recompiles it.
+
+<!--
+  This README is for someone standing in the repository — a maintainer, or
+  somebody deciding whether to install the control. The hub publishes `docs/`,
+  not this file, so do not duplicate the documentation here.
+
+  The PCFHub button above promises a live demo. If `demo.fidelity` in
+  `pcfhub.json` is `none`, point it at `badges/view-on-pcfhub.svg` and label it
+  "View on PCFHub" instead.
+
+  The three sections below are the ones worth writing by hand. Everything after
+  them is the same in every repository and needs no edits.
+
+  **Each carries a placeholder, and `npm run check` fails while one remains.**
+  That is deliberate: an unwritten README is the first thing a visitor to the
+  repository sees, and the version of this file that shipped before had worked
+  examples sitting in it that read as real content. One of them — a bound
+  `value` property — was wrong for every control that is not a field control,
+  and reached a published repository.
+
+  Delete these comments once the sections are written. They are instructions to
+  you, and they are noise on a public page.
+-->
+
+## What it does
+
+__WHAT_IT_DOES__
+
+<!--
+  A few paragraphs, not a feature list. Answer what the built-in control does
+  not do, then spend the rest on the one or two decisions a reader would
+  otherwise question — the binding shape, a behaviour that looks like a bug
+  until you know why, a constraint you chose to accept.
+
+  This is the section that saves an issue being opened.
+-->
+
+## Properties
+
+__PROPERTIES__
+
+<!--
+  The whole configuration surface, including the defaults. `docs/api.md`
+  generates its tables from the manifest; this one is hand-written, so keep it
+  short enough to stay true. Read them out of the manifest rather than from
+  memory, and check them against `generated/ManifestTypes.d.ts`.
+
+  A field control's table looks like this — one row per property, and for a
+  dataset control a second table for the `property-set` roles above it, giving
+  both the display name a maker sees and the manifest name the code looks up by:
+
+      | Property | Type | Usage | Default | What it controls |
+      | --- | --- | --- | --- | --- |
+      | `value` | SingleLine.Text | bound, **required** | — | The column this control reads and writes |
+
+  Follow it with the notes that do not fit a table: which languages the .resx
+  ship, whether the control bundles a framework or uses the platform's, which
+  `uses-feature` permissions a maker is asked for at install, and any property
+  whose accepted values need spelling out.
+-->
+
+## On the hub
+
+__ON_THE_HUB__
+
+<!--
+  What `demo.fidelity` is, and *why* it is that and not the next one up. A
+  `limited` demo should say which interactions do not work there; a `full` one
+  is worth explaining, because it follows from the control not reaching Web API,
+  device or navigation — which is also one fewer permission prompt for the maker
+  installing it.
+
+  Mention what the presets cover. Delete this section if fidelity is `none` —
+  and delete the placeholder with it, or the check will go on failing.
+-->
+
+## Install
+
+Download the managed solution from the
+[latest release](https://github.com/pcfhub/pcf-file-preview/releases/latest), or from
+the component's page on the hub, and import it into your environment.
+
+## Develop
+
+```bash
+npm install
+npm start          # the PCF test harness
+npm run build
+npm run lint
+npm run check      # what CI runs first: placeholders, pcfhub.json, control shape
+npm run smoke      # assertions against the built bundle — see dev/
+npm run harness    # serves dev/harness.html and opens it
+```
+
+`npm start` renders the control; `dev/` is for the states it cannot reach. Build
+first, then `npm run smoke` for the assertions, or `npm run harness` for the
+switches — field-level security, a failed business rule, a host that publishes
+no theme or no column metadata, and for a dataset control, more than one page.
+Both read the bundle `npm run build` wrote, and both are described in the header
+of `dev/smoke.js`.
+
+`npm run harness` serves the repository over `http://` rather than leaving you to
+open the file: over `file://` a dataset fixture cannot be fetched and a module
+script is refused, and both arrive as an empty control with a CORS error. It
+takes `--port` and `--no-open`, and needs no dependency — `dev/serve.js` is
+`node:http`. A React (virtual) control gets one too: `dev/fluent-stub.js` stands
+in for the Fluent the platform would supply, and its header says exactly where
+the stand-in is less capable than the real thing.
+
+Run `npm run refreshTypes` after every manifest edit — until you do,
+`context.parameters` is typed from the old manifest and `tsc` will accept code that
+cannot work.
+
+To pack the solution locally you need msbuild — either Visual Studio or the
+Visual Studio Build Tools:
+
+```bash
+cd Solution
+msbuild /t:build /restore /p:configuration=Release
+```
+
+Both zips land in `Solution/bin/Release`. This is the only local step that compiles
+in **production** mode, so a green `npm run build` is not evidence the shipping
+bundle compiles — and the pack is incremental, so delete `obj/`, `out/`,
+`Solution/obj/` and `Solution/bin/` first if you intend to quote a bundle size from
+it.
+
+## Release
+
+```bash
+npm run bump -- --minor      # every version location, in one edit
+npm run release -- --draft   # .release-notes.md, from the commits since the last tag
+# …rewrite the notes, commit the bump…
+npm run release -- --push
+```
+
+**On PowerShell, call the scripts directly** — `node scripts/version.mjs --minor`.
+npm swallows a `--` flag there, warns *"Unknown cli config"*, and runs the
+script with no arguments: it prints the report, changes nothing, and reads as a
+bump that found nothing to do.
+
+`npm run bump` with no argument is a **read**: it prints every place the version
+lives and exits 1 if they disagree. Worth running before anything else, because
+the same check otherwise happens in CI — on a Windows runner, after the pack, on
+a tag that has already been pushed. `npm run check` now runs it too.
+
+The version lives in **three** places, more in a repository holding several
+controls, and they are checked against each other:
+
+- `FilePreview/ControlManifest.Input.xml` → `<control version="…">`
+- `Solution/src/Other/Solution.xml` → `<Version>`
+- `package.json` → `"version"`
+
+Doing it by hand is still fine, and then the thing to get right is the tag:
+
+```bash
+git tag -a --cleanup=verbatim v1.2.3 -F notes.md && git push origin v1.2.3
+```
+
+**Without `--cleanup=verbatim`, git drops every `## Heading` in the notes as a
+comment, silently.** `npm run release` passes it, and then reads the tag back to
+confirm the headings survived — because the failure is invisible in the command
+that caused it.
+
+**The tag message is the release body, and the release body is the changelog
+on the hub.** A lightweight tag gets GitHub's generated notes instead, which
+for a repository without pull requests is a single compare link — and the
+workflow warns when that is about to happen.
+
+There is deliberately no `CHANGELOG.md`. The hub builds the changelog from
+release notes, and `docs/changelog.md` is a hard failure in `npm run check`.
+
+The release workflow builds, packs both solution types, and attaches them to a
+GitHub Release. PCFHub picks the release up from its webhook within seconds, or
+from the hourly sweep otherwise. A sync imports a draft; a person publishes it.
+
+## Repository layout
+
+| Path | What it is |
+| --- | --- |
+| `FilePreview/` | The control: manifest, entry point, CSS, localised strings |
+| `Solution/` | The Dataverse solution that packages it |
+| `dev/` | A stand-in host: `npm run smoke` asserts, `harness.html` shows |
+| `SPEC.md` | What building this corrected, and what is verified versus read |
+| `docs/` | The pages PCFHub publishes — see the comments in each file |
+| `media/` | Images and video referenced from the docs |
+| `pcfhub.json` | The hub's manifest: identity, links, docs path, demo |
+| `scripts/` | Template setup and the CI guard that keeps it adopted |
+
+## Licence
+
+[MIT](LICENSE)

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Japanese (ja-JP, LCID 1041).
+
+    Keep the key set identical to FilePreview.1033.resx. A key missing here does
+    not fall back to English — it renders as the key name, and only for users in
+    this language, so nobody who reads English ever sees it. `npm run check`
+    compares the two.
+
+    File Preview and See the PDF or image in a File or Image column on the form — and download, replace or remove it. are filled by `npm run setup` with the English
+    title and tagline you gave it, because the template cannot know them. They
+    are the two values in this file worth translating by hand.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="FilePreview_Name" xml:space="preserve">
+    <value>ファイル プレビュー</value>
+  </data>
+  <data name="FilePreview_Desc" xml:space="preserve">
+    <value>フォーム上でファイル列または画像列の PDF や画像を表示し、ダウンロード、置換、削除できます。</value>
+  </data>
+  <data name="value_Name" xml:space="preserve">
+    <value>配置先</value>
+  </data>
+  <data name="value_Desc" xml:space="preserve">
+    <value>フォーム上の任意の列。コントロールはこの列を読み書きしません。ファイルは下で指定したファイル列または画像列から取得します。</value>
+  </data>
+  <data name="fileColumn_Name" xml:space="preserve">
+    <value>ファイル列</value>
+  </data>
+  <data name="fileColumn_Desc" xml:space="preserve">
+    <value>表示するファイル列または画像列の論理名。空欄の場合はテーブル唯一のファイル列を使います。</value>
+  </data>
+  <data name="allowChanges_Name" xml:space="preserve">
+    <value>置換と削除を許可</value>
+  </data>
+  <data name="allowChanges_Desc" xml:space="preserve">
+    <value>オン: ファイルの置換 (選択またはドロップ) と削除ができます。オフ: 表示とダウンロードのみ。</value>
+  </data>
+  <data name="previewHeight_Name" xml:space="preserve">
+    <value>プレビューの高さ</value>
+  </data>
+  <data name="previewHeight_Desc" xml:space="preserve">
+    <value>プレビューの高さ (ピクセル、120～2000)。</value>
+  </data>
+  <data name="recordId_Name" xml:space="preserve">
+    <value>レコード ID</value>
+  </data>
+  <data name="recordId_Desc" xml:space="preserve">
+    <value>コントロールがどのレコード上にあるかを伝えないホスト用のレコード ID。モデル駆動型フォームでは空欄のままにします。</value>
+  </data>
+  <data name="recordEntity_Name" xml:space="preserve">
+    <value>レコードのテーブル</value>
+  </data>
+  <data name="recordEntity_Desc" xml:space="preserve">
+    <value>レコードのテーブル (論理名)。レコード ID と組み合わせて使います。モデル駆動型フォームでは空欄のままにします。</value>
+  </data>
+  <data name="FilePreview_NoAccess" xml:space="preserve">
+    <value>このファイルへのアクセス権がありません。</value>
+  </data>
+  <data name="FilePreview_Loading" xml:space="preserve">
+    <value>ファイルを読み込んでいます…</value>
+  </data>
+  <data name="FilePreview_Empty" xml:space="preserve">
+    <value>ファイルはまだありません。</value>
+  </data>
+  <data name="FilePreview_DropHint" xml:space="preserve">
+    <value>ここにファイルをドロップするか、</value>
+  </data>
+  <data name="FilePreview_Choose" xml:space="preserve">
+    <value>ファイルを選択</value>
+  </data>
+  <data name="FilePreview_Open" xml:space="preserve">
+    <value>開く</value>
+  </data>
+  <data name="FilePreview_Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="FilePreview_Replace" xml:space="preserve">
+    <value>置換</value>
+  </data>
+  <data name="FilePreview_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="FilePreview_Retry" xml:space="preserve">
+    <value>再試行</value>
+  </data>
+  <data name="FilePreview_Uploading" xml:space="preserve">
+    <value>{0} をアップロードしています…</value>
+  </data>
+  <data name="FilePreview_Removing" xml:space="preserve">
+    <value>ファイルを削除しています…</value>
+  </data>
+  <data name="FilePreview_Saving" xml:space="preserve">
+    <value>{0} を取得しています…</value>
+  </data>
+  <data name="FilePreview_SaveFirst" xml:space="preserve">
+    <value>ファイルを表示または追加するには、レコードを保存してください。</value>
+  </data>
+  <data name="FilePreview_NeedsForm" xml:space="preserve">
+    <value>ファイル プレビューにはモデル駆動型フォームが必要です。このアプリではファイルにアクセスできません。</value>
+  </data>
+  <data name="FilePreview_NoColumn" xml:space="preserve">
+    <value>このテーブルには表示できるファイル列または画像列がありません。</value>
+  </data>
+  <data name="FilePreview_Ambiguous" xml:space="preserve">
+    <value>このコントロールのプロパティで、ファイル列を次のいずれかに設定してください: {0}。</value>
+  </data>
+  <data name="FilePreview_NotFileColumn" xml:space="preserve">
+    <value>「{0}」はこのテーブルのファイル列または画像列ではありません。</value>
+  </data>
+  <data name="FilePreview_DefinitionFailed" xml:space="preserve">
+    <value>テーブルの列を読み取れませんでした。しばらくしてからもう一度お試しください。</value>
+  </data>
+  <data name="FilePreview_Offline" xml:space="preserve">
+    <value>ファイルにアクセスできませんでした。接続を確認して、もう一度お試しください。</value>
+  </data>
+  <data name="FilePreview_LoadFailed" xml:space="preserve">
+    <value>ファイルを読み込めませんでした: {0}</value>
+  </data>
+  <data name="FilePreview_TooLarge" xml:space="preserve">
+    <value>このファイル ({0}) は大きすぎるため、ここではプレビューできません。ダウンロードして開いてください。</value>
+  </data>
+  <data name="FilePreview_NoPreview" xml:space="preserve">
+    <value>この種類のファイルはここではプレビューできません。</value>
+  </data>
+  <data name="FilePreview_TextCut" xml:space="preserve">
+    <value>最初の {0} を表示しています。すべてを見るにはファイルをダウンロードしてください。</value>
+  </data>
+  <data name="FilePreview_ThumbnailOnly" xml:space="preserve">
+    <value>この列には画像のサムネイルのみが保存されています。</value>
+  </data>
+  <data name="FilePreview_PreviewOf" xml:space="preserve">
+    <value>{0} のプレビュー</value>
+  </data>
+  <data name="FilePreview_Blocked" xml:space="preserve">
+    <value>{0} はアップロードできません。この組織ではその種類のファイルがブロックされています。</value>
+  </data>
+  <data name="FilePreview_EmptyFile" xml:space="preserve">
+    <value>{0} は空です。</value>
+  </data>
+  <data name="FilePreview_TooBig" xml:space="preserve">
+    <value>{0} はこの列で許可されているサイズ ({1}) を超えています。</value>
+  </data>
+  <data name="FilePreview_TooBigOneRequest" xml:space="preserve">
+    <value>{0} は 128 MB を超えているため、このコントロールではアップロードできません。</value>
+  </data>
+  <data name="FilePreview_UploadFailed" xml:space="preserve">
+    <value>ファイルをアップロードできませんでした: {0}</value>
+  </data>
+  <data name="FilePreview_RemoveFailed" xml:space="preserve">
+    <value>ファイルを削除できませんでした: {0}</value>
+  </data>
+  <data name="FilePreview_NotPermitted" xml:space="preserve">
+    <value>このファイルを変更する権限がありません。</value>
+  </data>
+  <data name="FilePreview_DownloadFailed" xml:space="preserve">
+    <value>ファイルをダウンロードできませんでした。</value>
+  </data>
+  <data name="FilePreview_ConfirmTitle" xml:space="preserve">
+    <value>ファイルを削除しますか?</value>
+  </data>
+  <data name="FilePreview_ConfirmText" xml:space="preserve">
+    <value>{0} はこのレコードから削除されます。この操作は元に戻せません。</value>
+  </data>
+</root>

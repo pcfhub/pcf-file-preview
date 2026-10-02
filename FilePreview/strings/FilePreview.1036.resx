@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    French (fr-FR, LCID 1036).
+
+    Keep the key set identical to FilePreview.1033.resx. A key missing here does
+    not fall back to English — it renders as the key name, and only for users in
+    this language, so nobody who reads English ever sees it. `npm run check`
+    compares the two.
+
+    File Preview and See the PDF or image in a File or Image column on the form — and download, replace or remove it. are filled by `npm run setup` with the English
+    title and tagline you gave it, because the template cannot know them. They
+    are the two values in this file worth translating by hand.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="FilePreview_Name" xml:space="preserve">
+    <value>Aperçu de fichier</value>
+  </data>
+  <data name="FilePreview_Desc" xml:space="preserve">
+    <value>Affichez le PDF ou l’image d’une colonne Fichier ou Image dans le formulaire, puis téléchargez-le, remplacez-le ou supprimez-le.</value>
+  </data>
+  <data name="value_Name" xml:space="preserve">
+    <value>Placé sur</value>
+  </data>
+  <data name="value_Desc" xml:space="preserve">
+    <value>N’importe quelle colonne du formulaire. Le contrôle ne la lit ni ne l’écrit jamais : le fichier vient de la colonne Fichier ou Image indiquée ci-dessous.</value>
+  </data>
+  <data name="fileColumn_Name" xml:space="preserve">
+    <value>Colonne de fichier</value>
+  </data>
+  <data name="fileColumn_Desc" xml:space="preserve">
+    <value>Nom logique de la colonne Fichier ou Image à afficher. Vide : la seule colonne Fichier de la table.</value>
+  </data>
+  <data name="allowChanges_Name" xml:space="preserve">
+    <value>Autoriser le remplacement et la suppression</value>
+  </data>
+  <data name="allowChanges_Desc" xml:space="preserve">
+    <value>Activé : le fichier peut être remplacé (choisir ou déposer un fichier) et supprimé. Désactivé : il est seulement affiché et téléchargé.</value>
+  </data>
+  <data name="previewHeight_Name" xml:space="preserve">
+    <value>Hauteur de l’aperçu</value>
+  </data>
+  <data name="previewHeight_Desc" xml:space="preserve">
+    <value>Hauteur de l’aperçu en pixels, de 120 à 2000.</value>
+  </data>
+  <data name="recordId_Name" xml:space="preserve">
+    <value>ID de l’enregistrement</value>
+  </data>
+  <data name="recordId_Desc" xml:space="preserve">
+    <value>L’identifiant de l’enregistrement, pour un hôte qui n’indique pas sur quel enregistrement se trouve le contrôle. Laissez vide sur un formulaire piloté par modèle.</value>
+  </data>
+  <data name="recordEntity_Name" xml:space="preserve">
+    <value>Table de l’enregistrement</value>
+  </data>
+  <data name="recordEntity_Desc" xml:space="preserve">
+    <value>La table de l’enregistrement (nom logique), avec l’ID de l’enregistrement. Laissez vide sur un formulaire piloté par modèle.</value>
+  </data>
+  <data name="FilePreview_NoAccess" xml:space="preserve">
+    <value>Vous n’avez pas accès à ce fichier.</value>
+  </data>
+  <data name="FilePreview_Loading" xml:space="preserve">
+    <value>Chargement du fichier…</value>
+  </data>
+  <data name="FilePreview_Empty" xml:space="preserve">
+    <value>Aucun fichier pour l’instant.</value>
+  </data>
+  <data name="FilePreview_DropHint" xml:space="preserve">
+    <value>Déposez un fichier ici, ou</value>
+  </data>
+  <data name="FilePreview_Choose" xml:space="preserve">
+    <value>Choisir un fichier</value>
+  </data>
+  <data name="FilePreview_Open" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="FilePreview_Download" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="FilePreview_Replace" xml:space="preserve">
+    <value>Remplacer</value>
+  </data>
+  <data name="FilePreview_Remove" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="FilePreview_Retry" xml:space="preserve">
+    <value>Réessayer</value>
+  </data>
+  <data name="FilePreview_Uploading" xml:space="preserve">
+    <value>Chargement de {0}…</value>
+  </data>
+  <data name="FilePreview_Removing" xml:space="preserve">
+    <value>Suppression du fichier…</value>
+  </data>
+  <data name="FilePreview_Saving" xml:space="preserve">
+    <value>Récupération de {0}…</value>
+  </data>
+  <data name="FilePreview_SaveFirst" xml:space="preserve">
+    <value>Enregistrez l’enregistrement pour afficher ou ajouter un fichier.</value>
+  </data>
+  <data name="FilePreview_NeedsForm" xml:space="preserve">
+    <value>L’aperçu de fichier nécessite un formulaire piloté par modèle : cette application ne lui donne aucun moyen d’atteindre le fichier.</value>
+  </data>
+  <data name="FilePreview_NoColumn" xml:space="preserve">
+    <value>Cette table n’a aucune colonne Fichier ou Image à afficher.</value>
+  </data>
+  <data name="FilePreview_Ambiguous" xml:space="preserve">
+    <value>Définissez Colonne de fichier dans les propriétés de ce contrôle sur l’une de : {0}.</value>
+  </data>
+  <data name="FilePreview_NotFileColumn" xml:space="preserve">
+    <value>« {0} » n’est pas une colonne Fichier ou Image de cette table.</value>
+  </data>
+  <data name="FilePreview_DefinitionFailed" xml:space="preserve">
+    <value>Impossible de lire les colonnes de la table. Réessayez dans un instant.</value>
+  </data>
+  <data name="FilePreview_Offline" xml:space="preserve">
+    <value>Impossible d’atteindre le fichier. Vérifiez la connexion et réessayez.</value>
+  </data>
+  <data name="FilePreview_LoadFailed" xml:space="preserve">
+    <value>Impossible de charger le fichier : {0}</value>
+  </data>
+  <data name="FilePreview_TooLarge" xml:space="preserve">
+    <value>Ce fichier ({0}) est trop volumineux pour être affiché ici. Téléchargez-le pour l’ouvrir.</value>
+  </data>
+  <data name="FilePreview_NoPreview" xml:space="preserve">
+    <value>Ce type de fichier ne peut pas être affiché ici.</value>
+  </data>
+  <data name="FilePreview_TextCut" xml:space="preserve">
+    <value>Affichage des premiers {0}. Téléchargez le fichier pour tout voir.</value>
+  </data>
+  <data name="FilePreview_ThumbnailOnly" xml:space="preserve">
+    <value>Cette colonne ne conserve qu’une miniature de l’image.</value>
+  </data>
+  <data name="FilePreview_PreviewOf" xml:space="preserve">
+    <value>Aperçu de {0}</value>
+  </data>
+  <data name="FilePreview_Blocked" xml:space="preserve">
+    <value>Impossible de charger {0} : cette organisation bloque les fichiers de ce type.</value>
+  </data>
+  <data name="FilePreview_EmptyFile" xml:space="preserve">
+    <value>{0} est vide.</value>
+  </data>
+  <data name="FilePreview_TooBig" xml:space="preserve">
+    <value>{0} dépasse la taille autorisée par cette colonne ({1}).</value>
+  </data>
+  <data name="FilePreview_TooBigOneRequest" xml:space="preserve">
+    <value>{0} dépasse 128 Mo, ce que ce contrôle ne peut pas charger.</value>
+  </data>
+  <data name="FilePreview_UploadFailed" xml:space="preserve">
+    <value>Impossible de charger le fichier : {0}</value>
+  </data>
+  <data name="FilePreview_RemoveFailed" xml:space="preserve">
+    <value>Impossible de supprimer le fichier : {0}</value>
+  </data>
+  <data name="FilePreview_NotPermitted" xml:space="preserve">
+    <value>Vous n’êtes pas autorisé à modifier ce fichier.</value>
+  </data>
+  <data name="FilePreview_DownloadFailed" xml:space="preserve">
+    <value>Impossible de télécharger le fichier.</value>
+  </data>
+  <data name="FilePreview_ConfirmTitle" xml:space="preserve">
+    <value>Supprimer le fichier ?</value>
+  </data>
+  <data name="FilePreview_ConfirmText" xml:space="preserve">
+    <value>{0} sera supprimé de cet enregistrement. Cette action est irréversible.</value>
+  </data>
+</root>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    German (de-DE, LCID 1031).
+
+    Keep the key set identical to FilePreview.1033.resx. A key missing here does
+    not fall back to English — it renders as the key name, and only for users in
+    this language, so nobody who reads English ever sees it. `npm run check`
+    compares the two.
+
+    File Preview and See the PDF or image in a File or Image column on the form — and download, replace or remove it. are filled by `npm run setup` with the English
+    title and tagline you gave it, because the template cannot know them. They
+    are the two values in this file worth translating by hand.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="FilePreview_Name" xml:space="preserve">
+    <value>Dateivorschau</value>
+  </data>
+  <data name="FilePreview_Desc" xml:space="preserve">
+    <value>PDF oder Bild aus einer Datei- oder Bildspalte im Formular anzeigen – und herunterladen, ersetzen oder entfernen.</value>
+  </data>
+  <data name="value_Name" xml:space="preserve">
+    <value>Platziert auf</value>
+  </data>
+  <data name="value_Desc" xml:space="preserve">
+    <value>Beliebige Spalte im Formular. Das Steuerelement liest oder schreibt sie nie – die Datei kommt aus der unten genannten Datei- oder Bildspalte.</value>
+  </data>
+  <data name="fileColumn_Name" xml:space="preserve">
+    <value>Dateispalte</value>
+  </data>
+  <data name="fileColumn_Desc" xml:space="preserve">
+    <value>Logischer Name der anzuzeigenden Datei- oder Bildspalte. Leer: die einzige Dateispalte der Tabelle.</value>
+  </data>
+  <data name="allowChanges_Name" xml:space="preserve">
+    <value>Ersetzen und Entfernen erlauben</value>
+  </data>
+  <data name="allowChanges_Desc" xml:space="preserve">
+    <value>Ein: Die Datei kann ersetzt (auswählen oder ablegen) und entfernt werden. Aus: Sie wird nur angezeigt und heruntergeladen.</value>
+  </data>
+  <data name="previewHeight_Name" xml:space="preserve">
+    <value>Vorschauhöhe</value>
+  </data>
+  <data name="previewHeight_Desc" xml:space="preserve">
+    <value>Höhe der Vorschau in Pixel, 120 bis 2000.</value>
+  </data>
+  <data name="recordId_Name" xml:space="preserve">
+    <value>Datensatz-ID</value>
+  </data>
+  <data name="recordId_Desc" xml:space="preserve">
+    <value>Die ID des Datensatzes, für einen Host, der nicht mitteilt, auf welchem Datensatz das Steuerelement liegt. In einem modellgesteuerten Formular leer lassen.</value>
+  </data>
+  <data name="recordEntity_Name" xml:space="preserve">
+    <value>Datensatztabelle</value>
+  </data>
+  <data name="recordEntity_Desc" xml:space="preserve">
+    <value>Die Tabelle des Datensatzes (logischer Name), zusammen mit der Datensatz-ID. In einem modellgesteuerten Formular leer lassen.</value>
+  </data>
+  <data name="FilePreview_NoAccess" xml:space="preserve">
+    <value>Sie haben keinen Zugriff auf diese Datei.</value>
+  </data>
+  <data name="FilePreview_Loading" xml:space="preserve">
+    <value>Datei wird geladen…</value>
+  </data>
+  <data name="FilePreview_Empty" xml:space="preserve">
+    <value>Noch keine Datei.</value>
+  </data>
+  <data name="FilePreview_DropHint" xml:space="preserve">
+    <value>Datei hier ablegen oder</value>
+  </data>
+  <data name="FilePreview_Choose" xml:space="preserve">
+    <value>Datei auswählen</value>
+  </data>
+  <data name="FilePreview_Open" xml:space="preserve">
+    <value>Öffnen</value>
+  </data>
+  <data name="FilePreview_Download" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="FilePreview_Replace" xml:space="preserve">
+    <value>Ersetzen</value>
+  </data>
+  <data name="FilePreview_Remove" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="FilePreview_Retry" xml:space="preserve">
+    <value>Erneut versuchen</value>
+  </data>
+  <data name="FilePreview_Uploading" xml:space="preserve">
+    <value>{0} wird hochgeladen…</value>
+  </data>
+  <data name="FilePreview_Removing" xml:space="preserve">
+    <value>Datei wird entfernt…</value>
+  </data>
+  <data name="FilePreview_Saving" xml:space="preserve">
+    <value>{0} wird abgerufen…</value>
+  </data>
+  <data name="FilePreview_SaveFirst" xml:space="preserve">
+    <value>Speichern Sie den Datensatz, um eine Datei anzuzeigen oder hinzuzufügen.</value>
+  </data>
+  <data name="FilePreview_NeedsForm" xml:space="preserve">
+    <value>Die Dateivorschau benötigt ein modellgesteuertes Formular: Diese App bietet keinen Weg zur Datei.</value>
+  </data>
+  <data name="FilePreview_NoColumn" xml:space="preserve">
+    <value>Diese Tabelle hat keine Datei- oder Bildspalte zum Anzeigen.</value>
+  </data>
+  <data name="FilePreview_Ambiguous" xml:space="preserve">
+    <value>Legen Sie in den Eigenschaften dieses Steuerelements die Dateispalte auf eine der folgenden fest: {0}.</value>
+  </data>
+  <data name="FilePreview_NotFileColumn" xml:space="preserve">
+    <value>„{0}“ ist keine Datei- oder Bildspalte dieser Tabelle.</value>
+  </data>
+  <data name="FilePreview_DefinitionFailed" xml:space="preserve">
+    <value>Die Spalten der Tabelle konnten nicht gelesen werden. Versuchen Sie es gleich noch einmal.</value>
+  </data>
+  <data name="FilePreview_Offline" xml:space="preserve">
+    <value>Die Datei war nicht erreichbar. Prüfen Sie die Verbindung und versuchen Sie es erneut.</value>
+  </data>
+  <data name="FilePreview_LoadFailed" xml:space="preserve">
+    <value>Die Datei konnte nicht geladen werden: {0}</value>
+  </data>
+  <data name="FilePreview_TooLarge" xml:space="preserve">
+    <value>Diese Datei ({0}) ist zu groß für eine Vorschau. Laden Sie sie herunter, um sie zu öffnen.</value>
+  </data>
+  <data name="FilePreview_NoPreview" xml:space="preserve">
+    <value>Für diesen Dateityp gibt es hier keine Vorschau.</value>
+  </data>
+  <data name="FilePreview_TextCut" xml:space="preserve">
+    <value>Die ersten {0} werden angezeigt. Laden Sie die Datei herunter, um alles zu sehen.</value>
+  </data>
+  <data name="FilePreview_ThumbnailOnly" xml:space="preserve">
+    <value>Diese Spalte speichert nur eine Miniaturansicht des Bildes.</value>
+  </data>
+  <data name="FilePreview_PreviewOf" xml:space="preserve">
+    <value>Vorschau von {0}</value>
+  </data>
+  <data name="FilePreview_Blocked" xml:space="preserve">
+    <value>{0} kann nicht hochgeladen werden: Diese Organisation blockiert Dateien dieses Typs.</value>
+  </data>
+  <data name="FilePreview_EmptyFile" xml:space="preserve">
+    <value>{0} ist leer.</value>
+  </data>
+  <data name="FilePreview_TooBig" xml:space="preserve">
+    <value>{0} ist größer, als diese Spalte erlaubt ({1}).</value>
+  </data>
+  <data name="FilePreview_TooBigOneRequest" xml:space="preserve">
+    <value>{0} ist größer als 128 MB und kann von diesem Steuerelement nicht hochgeladen werden.</value>
+  </data>
+  <data name="FilePreview_UploadFailed" xml:space="preserve">
+    <value>Die Datei konnte nicht hochgeladen werden: {0}</value>
+  </data>
+  <data name="FilePreview_RemoveFailed" xml:space="preserve">
+    <value>Die Datei konnte nicht entfernt werden: {0}</value>
+  </data>
+  <data name="FilePreview_NotPermitted" xml:space="preserve">
+    <value>Sie haben keine Berechtigung, diese Datei zu ändern.</value>
+  </data>
+  <data name="FilePreview_DownloadFailed" xml:space="preserve">
+    <value>Die Datei konnte nicht heruntergeladen werden.</value>
+  </data>
+  <data name="FilePreview_ConfirmTitle" xml:space="preserve">
+    <value>Datei entfernen?</value>
+  </data>
+  <data name="FilePreview_ConfirmText" xml:space="preserve">
+    <value>{0} wird aus diesem Datensatz entfernt. Dies kann nicht rückgängig gemacht werden.</value>
+  </data>
+</root>

@@ -1,0 +1,32 @@
+{
+  "name": "pcf-file-preview",
+  "version": "0.0.1",
+  "description": "See the PDF or image in a File or Image column on the form — and download, replace or remove it.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "adopt": "node scripts/adopt.mjs",
+    "bump": "node scripts/version.mjs",
+    "release": "node scripts/release.mjs",
+    "check": "node scripts/check-template.mjs",
+    "build": "pcf-scripts build",
+    "clean": "pcf-scripts clean",
+    "rebuild": "pcf-scripts rebuild",
+    "start": "pcf-scripts start",
+    "refreshTypes": "pcf-scripts refreshTypes",
+    "smoke": "node dev/smoke.js",
+    "harness": "node dev/serve.js",
+    "lint": "eslint FilePreview --ext .ts,.tsx"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/powerapps-component-framework": "^1.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "pcf-scripts": "^1",
+    "pcf-start": "^1",
+    "typescript": "^5.3.3"
+  }
+}

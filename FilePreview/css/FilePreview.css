@@ -1,0 +1,344 @@
+/*
+ * Every rule is scoped under the control's own class: a code component shares
+ * a document with the form and every other control on it, so a bare
+ * `img { … }` here restyles the page it was dropped onto.
+ */
+
+/*
+ * The palette, as Fluent's design tokens with literal fallbacks — the token
+ * where the host publishes it (a model-driven form mounts a FluentProvider
+ * above every code component), Fluent's web light theme where it does not.
+ * The same set as pcf-file-drop, so the two look like one family on a form.
+ */
+.FilePreview {
+    --FilePreview-background: var(--colorNeutralBackground3, #f5f5f5);
+    --FilePreview-background-stage: var(--colorNeutralBackground2, #fafafa);
+    --FilePreview-background-button: var(--colorNeutralBackground1, #ffffff);
+    --FilePreview-background-button-hover: var(--colorNeutralBackground1Hover, #f5f5f5);
+    --FilePreview-background-active: var(--colorBrandBackground2, #ebf3fc);
+    --FilePreview-stroke: var(--colorNeutralStroke2, #e0e0e0);
+    --FilePreview-stroke-strong: var(--colorNeutralStroke1, #d1d1d1);
+    --FilePreview-stroke-disabled: var(--colorNeutralStrokeDisabled, #e0e0e0);
+    --FilePreview-stroke-focus: var(--colorCompoundBrandStroke, #0f6cbd);
+    --FilePreview-foreground: var(--colorNeutralForeground1, #242424);
+    --FilePreview-foreground-secondary: var(--colorNeutralForeground2, #424242);
+    --FilePreview-foreground-placeholder: var(--colorNeutralForeground4, #707070);
+    --FilePreview-foreground-disabled: var(--colorNeutralForegroundDisabled, #bdbdbd);
+    --FilePreview-foreground-danger: var(--colorPaletteRedForeground1, #bc2f32);
+    --FilePreview-radius: var(--borderRadiusMedium, 4px);
+    --FilePreview-font-family: var(--fontFamilyBase, "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif);
+    --FilePreview-font-family-mono: var(--fontFamilyMonospace, Consolas, "Courier New", Courier, monospace);
+    --FilePreview-font-size: var(--fontSizeBase300, 14px);
+    --FilePreview-line-height: var(--lineHeightBase300, 20px);
+    --FilePreview-font-size-caption: var(--fontSizeBase200, 12px);
+    --FilePreview-line-height-caption: var(--lineHeightBase200, 16px);
+
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    /* The four-part width rule's first part: never wider than the host. */
+    max-width: 100%;
+    min-width: 0;
+    font-family: var(--FilePreview-font-family);
+    font-size: var(--FilePreview-font-size);
+    line-height: var(--FilePreview-line-height);
+    color: var(--FilePreview-foreground);
+}
+
+/* The dark fallbacks, chosen from `isDarkTheme` — never `prefers-color-scheme`,
+   which answers for the operating system, not the app. */
+.FilePreview--dark {
+    --FilePreview-background: var(--colorNeutralBackground3, #141414);
+    --FilePreview-background-stage: var(--colorNeutralBackground2, #1f1f1f);
+    --FilePreview-background-button: var(--colorNeutralBackground1, #292929);
+    --FilePreview-background-button-hover: var(--colorNeutralBackground1Hover, #3d3d3d);
+    --FilePreview-background-active: var(--colorBrandBackground2, #082338);
+    --FilePreview-stroke: var(--colorNeutralStroke2, #333333);
+    --FilePreview-stroke-strong: var(--colorNeutralStroke1, #666666);
+    --FilePreview-stroke-disabled: var(--colorNeutralStrokeDisabled, #424242);
+    --FilePreview-stroke-focus: var(--colorCompoundBrandStroke, #479ef5);
+    --FilePreview-foreground: var(--colorNeutralForeground1, #ffffff);
+    --FilePreview-foreground-secondary: var(--colorNeutralForeground2, #d6d6d6);
+    --FilePreview-foreground-placeholder: var(--colorNeutralForeground4, #999999);
+    --FilePreview-foreground-disabled: var(--colorNeutralForegroundDisabled, #5c5c5c);
+    --FilePreview-foreground-danger: var(--colorPaletteRedForeground1, #e37d80);
+}
+
+.FilePreview--hidden {
+    display: none;
+}
+
+/* `hidden` beats nothing an author rule sets `display` on; say it once. */
+.FilePreview [hidden] {
+    display: none !important;
+}
+
+/*
+ * The bar: the file's name and facts on the left, its actions on the right.
+ * It wraps rather than measuring — the actions drop below the name in a
+ * narrow column — because a width read from a form section is a guess and a
+ * wrapped row never is.
+ */
+.FilePreview .FilePreview-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacingHorizontalS, 8px);
+    padding: var(--spacingVerticalXS, 4px) 0 var(--spacingVerticalS, 8px);
+    min-width: 0;
+}
+
+.FilePreview .FilePreview-emblem {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    color: var(--FilePreview-foreground-secondary);
+}
+
+.FilePreview .FilePreview-title {
+    display: flex;
+    flex: 1 1 160px;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.FilePreview .FilePreview-name {
+    overflow: hidden;
+    font-weight: var(--fontWeightSemibold, 600);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.FilePreview .FilePreview-facts {
+    font-size: var(--FilePreview-font-size-caption);
+    line-height: var(--FilePreview-line-height-caption);
+    color: var(--FilePreview-foreground-secondary);
+}
+
+.FilePreview .FilePreview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacingHorizontalXS, 4px);
+}
+
+/* Fluent's secondary button, 32px tall like the form's own fields. */
+.FilePreview .FilePreview-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacingHorizontalXS, 4px);
+    box-sizing: border-box;
+    min-height: 32px;
+    padding: 0 var(--spacingHorizontalM, 12px);
+    border: 1px solid var(--FilePreview-stroke-strong);
+    border-radius: var(--FilePreview-radius);
+    background-color: var(--FilePreview-background-button);
+    color: var(--FilePreview-foreground);
+    font-family: inherit;
+    font-size: var(--FilePreview-font-size);
+    line-height: var(--FilePreview-line-height);
+    font-weight: var(--fontWeightSemibold, 600);
+    cursor: pointer;
+}
+
+.FilePreview .FilePreview-action:hover:not(:disabled) {
+    background-color: var(--FilePreview-background-button-hover);
+}
+
+.FilePreview .FilePreview-action:focus-visible {
+    outline: 2px solid var(--FilePreview-stroke-focus);
+    outline-offset: 1px;
+}
+
+.FilePreview .FilePreview-action:disabled {
+    border-color: var(--FilePreview-stroke-disabled);
+    color: var(--FilePreview-foreground-disabled);
+    cursor: not-allowed;
+}
+
+.FilePreview .FilePreview-actionIcon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+}
+
+/*
+ * The stage: where the file is drawn. Its height is the maker's
+ * `previewHeight`, set as `--FilePreview-height` on the element.
+ */
+.FilePreview .FilePreview-stage {
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    border: 1px solid var(--FilePreview-stroke);
+    border-radius: var(--FilePreview-radius);
+    background-color: var(--FilePreview-background-stage);
+    overflow: hidden;
+}
+
+/* Notes and messages read as text on the form, not as a panel. */
+.FilePreview .FilePreview-stage--blocked,
+.FilePreview .FilePreview-stage--error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacingHorizontalS, 8px);
+    padding: var(--spacingVerticalS, 8px) var(--spacingHorizontalM, 12px);
+}
+
+.FilePreview .FilePreview-placeholder {
+    height: min(var(--FilePreview-height, 480px), 160px);
+    background: linear-gradient(90deg, transparent, var(--FilePreview-background), transparent);
+    background-size: 200% 100%;
+    animation: FilePreview-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes FilePreview-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+}
+
+.FilePreview .FilePreview-frame {
+    display: block;
+    width: 100%;
+    height: var(--FilePreview-height, 480px);
+    border: 0;
+    background-color: var(--FilePreview-background-button);
+}
+
+/* `contain`: a cropped view of the thing somebody attached is worse than a small one. */
+.FilePreview .FilePreview-image {
+    display: block;
+    max-width: 100%;
+    max-height: var(--FilePreview-height, 480px);
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.FilePreview .FilePreview-text {
+    box-sizing: border-box;
+    max-height: var(--FilePreview-height, 480px);
+    margin: 0;
+    padding: var(--spacingVerticalS, 8px) var(--spacingHorizontalM, 12px);
+    overflow: auto;
+    font-family: var(--FilePreview-font-family-mono);
+    font-size: var(--FilePreview-font-size-caption);
+    line-height: var(--FilePreview-line-height-caption);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.FilePreview .FilePreview-text:focus-visible {
+    outline: 2px solid var(--FilePreview-stroke-focus);
+    outline-offset: -2px;
+}
+
+/* Empty, too large, not previewable: one centred column. */
+.FilePreview .FilePreview-empty,
+.FilePreview .FilePreview-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacingVerticalXS, 4px);
+    min-height: 132px;
+    padding: var(--spacingVerticalM, 12px) var(--spacingHorizontalM, 12px);
+    text-align: center;
+}
+
+.FilePreview .FilePreview-emptyEmblem {
+    width: 40px;
+    height: 40px;
+    color: var(--FilePreview-foreground-placeholder);
+}
+
+/* A dashed edge says "this takes a drop" without a sentence — only where it does. */
+.FilePreview--droppable .FilePreview-stage--empty {
+    border-style: dashed;
+    border-color: var(--FilePreview-stroke-strong);
+}
+
+/* Dragging over: the fill tints and the edge goes solid brand — two changes, so
+   forced colours, which flattens tints, still shows one. */
+.FilePreview--over .FilePreview-stage {
+    border-style: solid;
+    border-color: var(--FilePreview-stroke-focus);
+    background-color: var(--FilePreview-background-active);
+}
+
+.FilePreview .FilePreview-prompt,
+.FilePreview .FilePreview-note {
+    margin: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.FilePreview .FilePreview-note--error {
+    color: var(--FilePreview-foreground-danger);
+}
+
+.FilePreview .FilePreview-detail {
+    margin: var(--spacingVerticalXS, 4px) 0 0;
+    padding: 0 var(--spacingHorizontalM, 12px) var(--spacingVerticalXS, 4px);
+    font-size: var(--FilePreview-font-size-caption);
+    line-height: var(--FilePreview-line-height-caption);
+    color: var(--FilePreview-foreground-secondary);
+}
+
+.FilePreview .FilePreview-empty .FilePreview-detail {
+    padding: 0;
+}
+
+.FilePreview .FilePreview-status {
+    margin: var(--spacingVerticalXS, 4px) 0 0;
+    font-size: var(--FilePreview-font-size-caption);
+    line-height: var(--FilePreview-line-height-caption);
+    color: var(--FilePreview-foreground-secondary);
+}
+
+.FilePreview .FilePreview-status--error {
+    color: var(--FilePreview-foreground-danger);
+}
+
+/* Visually hidden, still clickable from script. */
+.FilePreview .FilePreview-picker {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* PROBE only — the 0.0.x measurement build's P2 variants. */
+.FilePreview .FilePreview-probe {
+    border-top: 1px dashed var(--FilePreview-stroke-strong);
+}
+
+.FilePreview .FilePreview-frame--probe {
+    height: 200px;
+}
+
+.FilePreview .FilePreview-image--probe {
+    max-height: 120px;
+}
+
+@media (forced-colors: active) {
+    .FilePreview .FilePreview-stage,
+    .FilePreview .FilePreview-action {
+        border-color: ButtonBorder;
+    }
+
+    .FilePreview--over .FilePreview-stage {
+        border-color: Highlight;
+    }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+    .FilePreview .FilePreview-placeholder {
+        animation: none;
+    }
+}
