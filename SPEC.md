@@ -24,8 +24,11 @@ every request is a same-origin `fetch`, in `platform.ts` alone. The record's
 identity is `mode.contextInfo` first, then the `recordId`/`recordEntity`
 inputs — pcf-audit-history's order.
 
-Everything in that table is **Learn's**, not measured: the probe below asks
-the form.
+Every row of that table came from Learn and was then **measured on the form
+on 2026-10-02** (the probe below), with two corrections Learn does not make:
+a non-ASCII name must be read from `Content-Disposition`, not
+`x-ms-file-name`, and an empty Image column answers 204 where an empty File
+column answers 404.
 
 ## Probe 0.0.1 — what the form has to answer
 
@@ -161,6 +164,33 @@ Round 3 (moving, large files), same day:
 - **P10** Not run: no Power Apps mobile app to hand. Stays in *Not verified*;
   0.1.0 decides the phone's behaviour without it.
 
+Final run, same day:
+
+- **P5** `getEntityMetadata`'s attribute for a File or Image column carries
+  **neither `MaxSizeInKB` nor `CanStoreFullImage`** (its full descriptor read:
+  type, flags, `ColumnNumber`, securing flags; an Image column is
+  `IsLogical`, `AttributeOf: <column>id`). The two cast reads stay.
+- **P3, names on the way up.** `PATCH …/cll_contract?x-ms-file-name=%C3%9Cbersicht.pdf`
+  answered 204, and the record reads `Übersicht.pdf` — **the query parameter
+  stores a non-ASCII name correctly**. Only reading needs the
+  `Content-Disposition` route (`=?utf-8?B?w5xiZXJzaWNodC5wZGY=?=` here).
+- **`IsValidForUpdate` means nothing for a File column**: `cll_smallfile`
+  reports `false`, and a 300 KB `PATCH` to it answered 204 and drew. The
+  control must not read it.
+- **P7, a new record saved.** Before the save every instance showed
+  `FilePreview_SaveFirst` (beside the platform's own *This record hasn't been
+  created yet*). On **Save** the **same instances** (pass counters carried on)
+  received the new `entityId` with `keyChanged: true`, loaded, and showed
+  *No file yet.* without a reload. The load key follows the record.
+
+**The probe is complete.** What 0.1.0 changes because of it: the name comes
+from `Content-Disposition` (RFC 2047 `B` and `Q` words, RFC 5987 `filename*`,
+then a bare `filename`), `x-ms-file-name` only when it is plain ASCII;
+`0x80043e09` maps to `FilePreview_Blocked`; the probe goes — its untyped frame
+downloaded the file on every draw; docs name the platform File control that
+stays stale after a write; the rig and the hub harness answer non-ASCII names
+the way the service does.
+
 ## Demo
 
 The hub's harness answers File and Image columns from `demo/fixture.json`'s
@@ -185,9 +215,10 @@ is the one request the demo refuses — it goes with the probe.
 
 ## Not verified
 
-- Every row of the route table above (P1–P6).
-- That the browser's PDF viewer draws inside a model-driven form (P2) — the
-  rig cannot know, and the harness page only shows it draws outside one.
 - A user without Write on the table, or with the column secured: no Basic
   User on the test environment.
-- The phone client (P10).
+- The phone client (P10): no Power Apps mobile app was to hand.
+- Browsers other than Chrome 154 on Windows; Edge shares the viewer, Firefox
+  and Safari were not opened.
+- The route table, the inline PDF and the 25 MB limit were measured on
+  2026-10-02 (above) and are no longer in this list.
