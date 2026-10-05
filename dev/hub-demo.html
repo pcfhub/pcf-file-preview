@@ -6,7 +6,7 @@
   harness, against the real stand-in Dataverse, before anything is published.
 
       npm run harness -- --no-open --port 8107          # this repository
-      npm run dev:demo-harness   (in ../pcfhub, port 4174, on the branch with File columns)
+      npm run dev:demo-harness   (in ../pcfhub, port 4174; File columns are on main since #74)
 
   then open http://localhost:8107/dev/hub-demo.html. The frame is sandboxed as
   the hub's is (allow-scripts only), so the page cannot reach inside it: what
@@ -15,6 +15,10 @@
     ?changes=0      Allow replace and remove off
     ?column=cr123_photo   the Image column instead of the File column
     ?harness=http://localhost:4174   where the harness is served
+    ?height=640     a fixed frame height; by default the frame takes the height
+                    the harness reports (harness:resize), as the hub's does — a
+                    fixed frame hides a control that draws below its own box
+                    (the skill's hub-demo.md, after pcf-number-slider 0.1.0)
 -->
 <html lang="en">
 <head>
@@ -41,6 +45,10 @@
             var messages = [];
 
             window.__messages = messages;
+
+            if (params.get('height')) {
+                frame.style.height = Number(params.get('height')) + 'px';
+            }
 
             function log(line) {
                 logBox.textContent += line + '\n';
@@ -112,6 +120,12 @@
                     }, '*');
                     log('→ harness:init');
                     return;
+                }
+
+                // The hub sizes its frame to the height the harness reports, and
+                // so does this page; ?height=<px> fixes it instead.
+                if (data.type === 'harness:resize' && !params.get('height')) {
+                    frame.style.height = data.height + 'px';
                 }
 
                 var detail = data.type === 'harness:log' ? data.level + ': ' + data.message
