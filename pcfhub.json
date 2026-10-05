@@ -8,6 +8,8 @@
   "category": "utilities",
   "hosts": ["model-driven"],
   "tags": ["file", "pdf", "image", "preview", "attachments", "drag-and-drop", "no-react", "accessible", "localised"],
+  "supportLevel": "reference",
+  "builtWith": "ai",
 
   "control": {
     "namespace": "PCFHub",

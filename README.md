@@ -2,6 +2,8 @@
 
 See the PDF or image in a File or Image column on the form — and download, replace or remove it.
 
+> **Reference example · built with AI.** This control was written with AI (Claude) and tested on a live Dataverse form; its code has not been reviewed line by line. It is published as a worked example and is not maintained — read the source and [`SPEC.md`](SPEC.md) (what was measured on the form) before you use it. Fixes are not guaranteed.
+
 [![Build](https://github.com/pcfhub/pcf-file-preview/actions/workflows/build.yml/badge.svg)](https://github.com/pcfhub/pcf-file-preview/actions/workflows/build.yml)
 [![Release](https://github.com/pcfhub/pcf-file-preview/actions/workflows/release.yml/badge.svg)](https://github.com/pcfhub/pcf-file-preview/actions/workflows/release.yml)
 
@@ -71,7 +73,6 @@ run its PDF viewer in one, so the control shows the card it shows on a
 phone — and Open and Download are reported rather than performed. Five
 presets: an image, a PDF, a CSV, Replace and Remove on, and an empty column
 ready for a drop.
-
 
 ## Install
 
