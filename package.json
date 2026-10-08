@@ -17,7 +17,9 @@
     "refreshTypes": "pcf-scripts refreshTypes",
     "smoke": "node dev/smoke.js",
     "harness": "node dev/serve.js",
-    "lint": "eslint FilePreview --ext .ts,.tsx"
+    "lint": "eslint FilePreview --ext .ts,.tsx",
+    "shots": "node dev/shots.js",
+    "demo-check": "node dev/demo-check.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
