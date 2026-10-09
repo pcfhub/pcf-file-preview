@@ -36,7 +36,7 @@ Built with `PROBE = true` in `FilePreview/probe.ts`. It records every request
 (status, every readable header, time), every pass's record identity, what each
 P2 element reported after loading, and any content-security-policy refusal.
 
-**Set-up, once, on the Accounts test form (cll365):**
+**Set-up, once, on the Accounts test form (the test environment):**
 
 The maker portal cannot change a File column's maximum size once the column
 exists (Learn, *Work with file column definitions*: only the API can), so the
@@ -83,7 +83,7 @@ copy(JSON.stringify(__pcfFilePreviewProbe.dump(), null, 2))
 
 **Answers go here, dated, one line each, before any 0.1.0 code changes.**
 
-Measured 2026-10-02, cll365, Chrome 154 on Windows, round 1 (reads):
+Measured 2026-10-02, the test environment, Chrome 154 on Windows, round 1 (reads):
 
 - **P1** A full File column answers **200**, `Content-Type: application/octet-stream`
   (so the blob must be re-typed — confirmed), `mimetype: application/pdf`,
@@ -214,7 +214,7 @@ two accounts, `.probe-kit/file-preview/`). Import 0.1.0 over the probe.
 | W5 | Remove the contract, confirm | *No file yet.*; the form shows no unsaved changes |
 | W6 | **+ New**, the probe tab, Save | *Save the record…*, then *No file yet.* after the save, without a reload |
 
-**Answered 2026-10-02 on cll365 (Chrome 154, Windows): W1–W6 all as expected.**
+**Answered 2026-10-02 on the test environment (Chrome 154, Windows): W1–W6 all as expected.**
 
 ## Demo
 
