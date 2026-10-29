@@ -1,32 +1,50 @@
 <!DOCTYPE html>
 <!--
-  A stand-in for the hub's component page: frames PCFHub's demo harness and
-  answers its handshake with this control's manifest, its strings, its
-  stylesheet and demo/fixture.json — so the control runs inside the real
-  harness, against the real stand-in Dataverse, before anything is published.
+  The control inside the hub's own demo harness, before anything is published.
 
-      npm run harness -- --no-open --port 8107          # this repository
-      npm run dev:demo-harness   (in ../pcfhub, port 4174; File columns are on main since #74)
+      npm run build
+      npm run harness -- --no-open --port 8181        # this repository
+      npm run dev:demo-harness                        # in ../pcfhub — port 4174
 
-  then open http://localhost:8107/dev/hub-demo.html. The frame is sandboxed as
-  the hub's is (allow-scripts only), so the page cannot reach inside it: what
-  the harness says comes back as messages, listed under the frame.
+  then open http://localhost:8181/dev/hub-demo.html, or run npm run demo-check.
 
-    ?changes=0      Allow replace and remove off
-    ?column=cr123_photo   the Image column instead of the File column
+  **Why a third host.** The hub's demo is not a form and not this repository's
+  rig: it changes inputs on a mounted control (every preset switch), narrows
+  it below the window, sizes its frame to the height the harness reports, and
+  answers Web API calls from `demo/` — and it found defects in five controls
+  that a form and the rig had both passed. This page is the hub's parent page
+  in miniature: it builds the manifest the hub's ingestion would build from
+  `ControlManifest.Input.xml` and `pcfhub.json`, hands it to the real harness
+  with a preset's props and state, and sizes the frame from `harness:resize`
+  as the hub does — a fixed-height frame hides a control that draws below its
+  own box (the skill's `references/hub-demo.md`, after `pcf-number-slider`
+  0.1.0).
+
+  The frame is sandboxed as the hub's is (`allow-scripts` only), so this page
+  cannot reach inside it: what the harness says comes back as messages,
+  listed under the frame and kept in `window.__messages`.
+  `window.__send(type, fields)` posts one — `harness:updateProps` is how the
+  hub's property panel changes an input on a mounted control — and
+  `window.__presets` lists the presets by slug.
+
+  The template's file, kept current by `sync-rig.mjs`; nothing in it names
+  this control.
+
+    ?preset=<slug>        a preset from pcfhub.json; the default one otherwise
+    ?width=640            the frame's width, to narrow the control
+    ?height=360           a fixed frame height instead of the reported one
+    ?theme=dark           the harness's dark theme
+    ?locale=de-DE         a locale the control has a .resx for
+    ?rtl=1  ?disabled=1   right to left; a read-only form
     ?harness=http://localhost:4174   where the harness is served
-    ?height=640     a fixed frame height; by default the frame takes the height
-                    the harness reports (harness:resize), as the hub's does — a
-                    fixed frame hides a control that draws below its own box
-                    (the skill's hub-demo.md, after pcf-number-slider 0.1.0)
 -->
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>File Preview — in the hub's demo harness</title>
+    <title>In the hub's demo harness</title>
     <style>
         body { margin: 0; padding: 24px; font-family: "Segoe UI", sans-serif; background: #f0f0f0; }
-        iframe { display: block; width: 640px; height: 640px; border: 1px solid #d1d1d1; background: #fff; }
+        iframe { display: block; height: 360px; border: 1px solid #d1d1d1; background: #fff; }
         #log { margin-top: 12px; max-width: 900px; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; }
     </style>
 </head>
@@ -39,12 +57,18 @@
 
             var params = new URLSearchParams(location.search);
             var harness = params.get('harness') || 'http://localhost:4174';
+            var width = Number(params.get('width')) || 640;
+            var locale = params.get('locale') || 'en-US';
             var session = 'stand-in-' + Math.random().toString(36).slice(2);
             var frame = document.getElementById('frame');
             var logBox = document.getElementById('log');
             var messages = [];
 
+            /* The .resx languages the catalogue ships, by LCID. */
+            var LOCALES = { 1033: 'en-US', 1031: 'de-DE', 1036: 'fr-FR', 1040: 'it-IT', 1041: 'ja-JP', 1043: 'nl-NL', 1046: 'pt-BR', 2052: 'zh-CN', 3082: 'es-ES' };
+
             window.__messages = messages;
+            frame.style.width = width + 'px';
 
             if (params.get('height')) {
                 frame.style.height = Number(params.get('height')) + 'px';
@@ -54,45 +78,189 @@
                 logBox.textContent += line + '\n';
             }
 
-            var base = location.origin;
-            var resx = await (await fetch('../FilePreview/strings/FilePreview.1033.resx')).text();
-            var strings = {};
+            function text(url) {
+                return fetch(url).then(function (r) {
+                    if (!r.ok) {
+                        throw new Error(url + ' answered ' + r.status);
+                    }
 
-            new DOMParser().parseFromString(resx, 'application/xml').querySelectorAll('data').forEach(function (node) {
-                strings[node.getAttribute('name')] = node.querySelector('value').textContent;
-            });
+                    return r.text();
+                });
+            }
 
-            var css = await (await fetch('../out/controls/FilePreview/css/FilePreview.css')).text();
-            var fixture = await (await fetch('../demo/fixture.json')).json();
+            try {
+                var hub = JSON.parse(await text('../pcfhub.json'));
+                var manifestPath = hub.control.manifestPath;
+                var controlDir = manifestPath.split('/').slice(0, -1).join('/');
+                var xml = new DOMParser().parseFromString(await text('../' + manifestPath), 'application/xml');
+                var control = xml.querySelector('control');
+                var groups = {};
 
-            var manifest = {
-                component: { slug: 'pcf-file-preview', name: 'File Preview' },
-                version: '0.0.1',
-                framework: 'standard',
-                controlType: 'field',
-                namespace: 'PCFHub',
-                constructor: 'FilePreview',
-                bundleUrl: base + '/out/controls/FilePreview/bundle.js',
-                styles: [css],
-                resources: { strings: { 'en-US': strings } },
-                properties: [
-                    { name: 'value', kind: 'bound', ofType: 'SingleLine.Text', required: true },
-                    { name: 'fileColumn', kind: 'input', ofType: 'SingleLine.Text' },
-                    { name: 'allowChanges', kind: 'input', ofType: 'TwoOptions' },
-                    { name: 'previewHeight', kind: 'input', ofType: 'Whole.None', default: 480 },
-                    { name: 'recordId', kind: 'input', ofType: 'SingleLine.Text' },
-                    { name: 'recordEntity', kind: 'input', ofType: 'SingleLine.Text' },
-                ],
-                featureUsage: ['Utility'],
-                fidelity: 'limited',
-            };
-            var props = {
-                value: 'Adventure Works',
-                fileColumn: params.get('column') || '',
-                allowChanges: params.get('changes') !== '0',
-                previewHeight: 420,
-                recordId: null,
-                recordEntity: null,
+                xml.querySelectorAll('type-group').forEach(function (group) {
+                    groups[group.getAttribute('name')] = Array.prototype.map.call(group.querySelectorAll('type'), function (t) { return t.textContent.trim(); });
+                });
+
+                /*
+                 * The hub's DemoPropertyData: bound, input and dataset only; an
+                 * of-type-group is demoed as its first member; an Enum carries
+                 * its <value>s; the default is the manifest's text.
+                 */
+                var EDITORS = { TwoOptions: 'boolean', Enum: 'enum', OptionSet: 'enum', MultiSelectOptionSet: 'enum' };
+                var editorOf = function (ofType) {
+                    if (EDITORS[ofType]) {
+                        return EDITORS[ofType];
+                    }
+
+                    if (/^Whole/.test(ofType) || ['Decimal', 'FP', 'Currency'].indexOf(ofType) !== -1) {
+                        return 'number';
+                    }
+
+                    return /^DateAndTime/.test(ofType) ? 'date' : 'text';
+                };
+                var properties = [];
+
+                xml.querySelectorAll('control > property, control > data-set').forEach(function (node) {
+                    if (node.tagName === 'data-set') {
+                        properties.push({ name: node.getAttribute('name'), kind: 'dataset', ofType: '', required: false, default: null, editor: 'dataset', allowedValues: null });
+
+                        return;
+                    }
+
+                    var usage = node.getAttribute('usage') || 'input';
+
+                    if (usage !== 'bound' && usage !== 'input') {
+                        return;
+                    }
+
+                    var ofType = node.getAttribute('of-type') || (groups[node.getAttribute('of-type-group')] || [''])[0];
+                    var editor = editorOf(ofType);
+                    var values = Array.prototype.map.call(node.querySelectorAll('value'), function (v) {
+                        return { value: v.textContent.trim(), label: v.getAttribute('display-name-key'), isDefault: v.getAttribute('default') === 'true' };
+                    });
+
+                    properties.push({
+                        name: node.getAttribute('name'),
+                        kind: usage,
+                        ofType: ofType,
+                        required: node.getAttribute('required') === 'true',
+                        default: node.hasAttribute('default-value') ? node.getAttribute('default-value') : null,
+                        editor: editor,
+                        allowedValues: editor === 'enum' ? values : null,
+                    });
+                });
+
+                var strings = {};
+
+                for (var resx of Array.prototype.slice.call(xml.querySelectorAll('resources > resx'))) {
+                    var lcid = (/\.(\d+)\.resx$/.exec(resx.getAttribute('path')) || [])[1];
+                    var name = LOCALES[lcid];
+
+                    if (!name) {
+                        continue;
+                    }
+
+                    var doc = new DOMParser().parseFromString(await text('../' + controlDir + '/' + resx.getAttribute('path')), 'application/xml');
+
+                    strings[name] = {};
+                    doc.querySelectorAll('data').forEach(function (node) {
+                        strings[name][node.getAttribute('name')] = node.querySelector('value').textContent;
+                    });
+                }
+
+                var styles = [];
+
+                for (var style of hub.demo.styles || []) {
+                    styles.push(await text('../' + style));
+                }
+
+                var libraries = {};
+
+                xml.querySelectorAll('platform-library').forEach(function (lib) {
+                    libraries[lib.getAttribute('name')] = lib.getAttribute('version');
+                });
+
+                /*
+                 * The fixture a preset is shown over: its own where it names
+                 * one (`presets[].datasetFixture`), the demo's otherwise —
+                 * the hub's ManifestDemo::fixturePathFor. Read once per file,
+                 * as the hub does. Until 2026-10-12 every preset was handed
+                 * the demo's, so a preset with its own showed the wrong rows
+                 * here and the right ones live.
+                 */
+                var fixtureFiles = {};
+                var fixtureOf = async function (p) {
+                    var path = (p && p.datasetFixture) || hub.demo.datasetFixture;
+
+                    if (!path) {
+                        return null;
+                    }
+
+                    if (!(path in fixtureFiles)) {
+                        fixtureFiles[path] = JSON.parse(await text('../' + path));
+                    }
+
+                    return fixtureFiles[path];
+                };
+                var presets = hub.demo.presets || [];
+                var presetFixtures = [];
+
+                for (var each of presets) {
+                    presetFixtures.push(await fixtureOf(each));
+                }
+
+                var preset = presets.find(function (p) { return p.slug === params.get('preset'); })
+                    || presets.find(function (p) { return p.isDefault; })
+                    || presets[0]
+                    || { slug: '(none)', props: {} };
+                var fixture = await fixtureOf(preset);
+                var dataset = properties.find(function (p) { return p.kind === 'dataset'; });
+                var state = preset.state || {};
+                var domains = Array.prototype.map.call(xml.querySelectorAll('external-service-usage[enabled="true"] domain'), function (d) {
+                    return d.textContent.trim().toLowerCase();
+                });
+
+                var manifest = {
+                    component: { slug: hub.slug, name: hub.name },
+                    version: control.getAttribute('version'),
+                    framework: hub.control.framework,
+                    controlType: hub.control.type,
+                    namespace: control.getAttribute('namespace'),
+                    constructor: control.getAttribute('constructor'),
+                    bundleUrl: location.origin + '/' + hub.demo.bundle,
+                    styles: styles,
+                    resources: { strings: strings },
+                    properties: properties,
+                    outputs: properties.filter(function (p) { return p.kind === 'bound'; }).map(function (p) { return { name: p.name, ofType: p.ofType }; }),
+                    featureUsage: Array.prototype.map.call(xml.querySelectorAll('feature-usage uses-feature'), function (f) { return f.getAttribute('name'); }),
+                    presets: presets.map(function (p, index) {
+                        return { slug: p.slug, name: p.name, props: p.props || {}, isDefault: !!p.isDefault, datasetFixture: presetFixtures[index], state: p.state || null };
+                    }),
+                    platformLibraries: Object.keys(libraries).length ? libraries : null,
+                    fidelity: hub.demo.fidelity,
+                    limitations: hub.demo.limitations || [],
+                    host: hub.demo.host || 'form',
+                    externalDomains: domains.length ? domains : null,
+                };
+
+                window.__presets = presets.map(function (p) { return p.slug; });
+                window.__manifest = manifest;
+                window.__props = Object.assign({}, preset.props || {});
+
+                if (dataset) {
+                    window.__props[dataset.name] = fixture;
+                }
+
+                log('preset: ' + preset.slug + '   (' + window.__presets.join(', ') + ')');
+            } catch (error) {
+                log('could not build the manifest: ' + error.message);
+                window.__failed = error.message;
+
+                return;
+            }
+
+            window.__send = function (type, fields) {
+                frame.contentWindow.postMessage(Object.assign({ v: 1, sessionId: session, type: type }, fields), '*');
+                log('→ ' + type + ' ' + JSON.stringify(fields).slice(0, 200));
             };
 
             window.addEventListener('message', function (event) {
@@ -105,32 +273,40 @@
                 messages.push(data);
 
                 if (data.type === 'harness:hello') {
-                    frame.contentWindow.postMessage({
-                        v: 1,
-                        sessionId: session,
-                        type: 'harness:init',
+                    window.__send('harness:init', {
                         manifest: manifest,
-                        props: props,
-                        theme: 'light',
-                        locale: 'en-US',
-                        datasetFixture: fixture,
-                        width: 600,
+                        props: window.__props,
+                        theme: params.get('theme') === 'dark' ? 'dark' : 'light',
+                        locale: locale,
+                        // The width the hub reports: the frame less the harness's own padding.
+                        width: width - 40,
                         height: -1,
                         formFactor: 1,
-                    }, '*');
-                    log('→ harness:init');
+                        disabled: params.get('disabled') === '1' || !!state.disabled,
+                        rtl: params.get('rtl') === '1',
+                        fieldState: {
+                            hidden: !!state.hidden,
+                            properties: state.properties || {},
+                            device: state.device || null,
+                            timeZone: state.timeZone || null,
+                            host: state.host || null,
+                        },
+                        // A field control's stand-in Dataverse, or a grid host's rows; a dataset control has it in props.
+                        datasetFixture: fixture,
+                    });
+
                     return;
                 }
 
-                // The hub sizes its frame to the height the harness reports, and
-                // so does this page; ?height=<px> fixes it instead.
+                // The hub sizes its frame to the height the harness reports, and so does this page.
                 if (data.type === 'harness:resize' && !params.get('height')) {
                     frame.style.height = data.height + 'px';
                 }
 
                 var detail = data.type === 'harness:log' ? data.level + ': ' + data.message
                     : data.type === 'harness:error' ? data.phase + ': ' + (data.error && data.error.message)
-                    : data.type === 'harness:navigate' ? JSON.stringify(Object.assign({}, data, { fileContent: data.fileContent ? '(' + data.fileContent.length + ' base64 chars)' : undefined, v: undefined, sessionId: undefined }))
+                    : data.type === 'harness:outputChanged' ? JSON.stringify(data.outputs).slice(0, 200)
+                    : data.type === 'harness:resize' ? String(data.height)
                     : '';
 
                 log('← ' + data.type + (detail ? '  ' + detail : ''));
